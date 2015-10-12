@@ -105,7 +105,8 @@ public class Terrain {
      * @return
      */
     public double getGridAltitude(int x, int z) {
-        return myAltitude[x][z];
+    	//TODO: CHANGE THIS SHIT (minus)
+        return -myAltitude[x][z];
     }
 
     /**
@@ -131,8 +132,7 @@ public class Terrain {
      */
     public double altitude(double x, double z) {
         double altitude = 0;
-
-        
+     
         
         return altitude;
     }
