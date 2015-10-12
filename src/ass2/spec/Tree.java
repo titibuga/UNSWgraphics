@@ -19,6 +19,7 @@ public class Tree {
     public double[] getPosition() {
         return myPos;
     }
+   
     
 
 }

@@ -16,8 +16,6 @@ import javax.media.opengl.glu.GLU;
 import javax.swing.JFrame;
 import com.jogamp.opengl.util.FPSAnimator;
 
-
-
 /**
  * COMMENT: Comment Game 
  *
@@ -28,6 +26,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
     private Terrain myTerrain;
     int angle = 0;
     int trans = 0;
+    int transy = 0;
 
     public Game(Terrain terrain) {
     	super("Assignment 2");
@@ -67,7 +66,6 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
     public static void main(String[] args) throws FileNotFoundException {
         Terrain terrain = LevelIO.load(new File(args[0]));
         Game game = new Game(terrain);
-        
         game.run();
     }
 
@@ -86,77 +84,79 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    gl.glPushMatrix();
 	    gl.glColor3f(1,0,0);
 	  
-	   
-	    
-	    
 	    double[] v1 = new double[3];
 
 		v1[0] = 1;
 		v1[2] = -1;
 	    double[] v2 = new double[3];
 	    //Start drawing   
-	    
-	    
-	    
-	    
-	   
-	    //gl.glTranslated(0,0, -5);
+
 		gl.glRotated(angle,1,0,0);
-		gl.glTranslated(trans,0,1);
+		gl.glTranslated(trans,transy,0);
 	 
-	    /*
 	    
-	    gl.glRotated(180,0,1,0);
-	    
-	    gl.glTranslated(-width/2, 0, -height/2);
-    	gl.glRotated(angle,1,0,0);
-    	gl.glTranslated(width/2, 0, height/2);
-    	
-    	   gl.glScaled(0.3,0.3, 0.3);*/
-    	
-	    
-	    
-	    gl.glBegin(GL.GL_TRIANGLES);
 	    for(int i = 0; i < width-1; i++){
 	    	
 	    	for(int j = 0; j < height-1; j++)
 	    	{
-	    		v1[1] = myTerrain.getGridAltitude(i+1, j) - myTerrain.getGridAltitude(i, j+1);
-	    		
-	    		v2[0] = 0;
-	    		v2[2] = -1;
-	    		v2[1] = myTerrain.getGridAltitude(i, j) - myTerrain.getGridAltitude(i, j+1);
-	    		
-	    		double[] n1 = crossProduct(v1,v2);
-	    		
-	    		gl.glNormal3d(n1[0], n1[1], n1[2]);
-	    		
-		    	gl.glVertex3d(i,myTerrain.getGridAltitude(i, j),j); // P0
-		    	gl.glVertex3d(i,myTerrain.getGridAltitude(i, j+1),j+1);// P1
-		    	gl.glVertex3d(i+1,myTerrain.getGridAltitude(i+1, j),j); // P2
-		    	
-		    	
-		    	v2[0] = 1;
-	    		v2[2] = 0;
-	    		v2[1] = myTerrain.getGridAltitude(i+1, j+1) - myTerrain.getGridAltitude(i, j+1);
-	    		n1 = crossProduct(v2,v1);
-	    		gl.glNormal3d(n1[0], n1[1], n1[2]);
-	    		
-		    	
-		    	
-		    	gl.glVertex3d(i,myTerrain.getGridAltitude(i, j+1),j+1);// P3
-		    	gl.glVertex3d(i+1,myTerrain.getGridAltitude(i+1, j+1),j+1); // P4
-		    	gl.glVertex3d(i+1,myTerrain.getGridAltitude(i+1, j),j); // P5
-	    		
-	    		
+	    		gl.glBegin(GL.GL_TRIANGLES);
+		    		v1[1] = myTerrain.getGridAltitude(i+1, j) - myTerrain.getGridAltitude(i, j+1);
+		    		
+		    		v2[0] = 0;
+		    		v2[2] = -1;
+		    		v2[1] = myTerrain.getGridAltitude(i, j) - myTerrain.getGridAltitude(i, j+1);
+		    		
+		    		double[] n1 = crossProduct(v1,v2);
+		    		
+		    		gl.glNormal3d(n1[0], n1[1], n1[2]);
+		    		
+			    	gl.glVertex3d(i,myTerrain.getGridAltitude(i, j),j); // P0
+			    	gl.glVertex3d(i,myTerrain.getGridAltitude(i, j+1),j+1);// P1
+			    	gl.glVertex3d(i+1,myTerrain.getGridAltitude(i+1, j),j); // P2
+			    	
+			    	v2[0] = 1;
+		    		v2[2] = 0;
+		    		v2[1] = myTerrain.getGridAltitude(i+1, j+1) - myTerrain.getGridAltitude(i, j+1);
+		    		n1 = crossProduct(v2,v1);
+		    		gl.glNormal3d(n1[0], n1[1], n1[2]);
+		    		
+			    	gl.glVertex3d(i,myTerrain.getGridAltitude(i, j+1),j+1);// P3
+			    	gl.glVertex3d(i+1,myTerrain.getGridAltitude(i+1, j+1),j+1); // P4
+			    	gl.glVertex3d(i+1,myTerrain.getGridAltitude(i+1, j),j); // P5
+		    	gl.glEnd();
+		    	gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_LINE);
+		    	gl.glDisable(GL2.GL_LIGHTING);
+		    	gl.glBegin(GL.GL_TRIANGLES);
+		    		
+		    		gl.glColor3f(1,0,0);
+			    	gl.glVertex3d(i,myTerrain.getGridAltitude(i, j),j); // P0
+			    	gl.glVertex3d(i,myTerrain.getGridAltitude(i, j+1),j+1);// P1
+			    	gl.glVertex3d(i+1,myTerrain.getGridAltitude(i+1, j),j); // P2
+			    	
+			    	gl.glVertex3d(i,myTerrain.getGridAltitude(i, j+1),j+1);// P3
+			    	gl.glVertex3d(i+1,myTerrain.getGridAltitude(i+1, j+1),j+1); // P4
+			    	gl.glVertex3d(i+1,myTerrain.getGridAltitude(i+1, j),j); // P5
+			    	
+		    	gl.glEnd();
+		    	gl.glEnable(GL2.GL_LIGHTING);
+		    	gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
 	    	}
-	    	
 	    }
-	    gl.glEnd();
+//	    for (Tree tree: myTerrain.trees()){
+//	    	int heightTree = 5;
+//	    	gl.glPushMatrix();
+//		    	double x = tree.getPosition()[0];
+//		    	double y = tree.getPosition()[1];
+//		    	double z = tree.getPosition()[2];
+//		    	gl.glTranslated(x, y, z + heightTree);
+//		    	drawTree(gl, heightTree);
+//	    	gl.glPopMatrix();
+//	    }
 	    gl.glPopMatrix();
 		
 	}
 
+	
 	@Override
 	public void dispose(GLAutoDrawable drawable) {
 		// TODO Auto-generated method stub
@@ -217,17 +217,21 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	public void keyPressed(KeyEvent e) {
 		// TODO Auto-generated method stub
 		switch (e.getKeyCode()) {  
-
-				 
 		
-		case KeyEvent.VK_LEFT:
-			trans++;
+		case KeyEvent.VK_U:
+			transy--;
+			break;
 			
+		case KeyEvent.VK_D:
+			transy++;
+			break;		
+			
+		case KeyEvent.VK_LEFT:
+			trans--;
 			break;
 			
 		case KeyEvent.VK_RIGHT:
-			trans--;
-			
+			trans++;
 			break;
 				  
 		 case KeyEvent.VK_DOWN:
