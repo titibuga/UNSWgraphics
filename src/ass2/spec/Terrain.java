@@ -106,7 +106,7 @@ public class Terrain {
      */
     public double getGridAltitude(int x, int z) {
     	//TODO: CHANGE THIS SHIT (minus)
-        return -myAltitude[x][z];
+        return myAltitude[x][z];
     }
 
     /**
@@ -159,7 +159,6 @@ public class Terrain {
         double frac2 = z - zInt;
         altitude = (p[1][2]*frac1 + p[0][2]*(1-frac1))*(1-frac2) + 
         			(p[3][2]*frac1 + p[2][2]*(1-frac1))*frac2;
-        System.out.println("x: " + x + " z: "+ z + " Altitude: " + altitude);
         return altitude;
     }
 
