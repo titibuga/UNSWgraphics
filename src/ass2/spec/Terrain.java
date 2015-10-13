@@ -144,16 +144,16 @@ public class Terrain {
         double[][] p = new double [4][3];
         p[0][0] = xInt;
         p[0][1] = zInt;
-        p[0][2] = -getGridAltitude(xInt, zInt);
+        p[0][2] = getGridAltitude(xInt, zInt);
         p[1][0] = xInt2;
         p[1][1] = zInt;
-        p[1][2] = -getGridAltitude(xInt2, zInt);
+        p[1][2] = getGridAltitude(xInt2, zInt);
         p[2][0] = xInt;
         p[2][1] = zInt2;
-        p[2][2] = -getGridAltitude(xInt, zInt2);
+        p[2][2] = getGridAltitude(xInt, zInt2);
         p[3][0] = xInt2;
         p[3][1] = zInt2;
-        p[3][2] = -getGridAltitude(xInt2, zInt2);
+        p[3][2] = getGridAltitude(xInt2, zInt2);
 
         double frac1 = x - xInt;
         double frac2 = z - zInt;

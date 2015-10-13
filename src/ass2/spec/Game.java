@@ -93,43 +93,49 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    //Start drawing   
 
 		gl.glRotated(angle,1,0,0);
-		gl.glTranslated(trans,transy,0);
+		gl.glTranslated(trans,transy,-10);
 	    for (Tree tree: myTerrain.trees()){
 	    	gl.glPushMatrix();
 		    	double x = tree.getPosition()[0];
 		    	double y = tree.getPosition()[1];
 		    	double z = tree.getPosition()[2];
+		    	System.out.println(y);
 		    	gl.glTranslated(x, y, z);
 		    	drawTree(gl);
 	    	gl.glPopMatrix();
 	    }
-	    gl.glScaled(1,-1,1);
+	    //gl.glScaled(1,-1,1);
 	    for(int i = 0; i < width-1; i++){
+	    	
 	    	for(int j = 0; j < height-1; j++)
 	    	{
+	    		double[] h = new double[]{ myTerrain.getGridAltitude(i, j),
+	    								   myTerrain.getGridAltitude(i, j+1),
+	    								   myTerrain.getGridAltitude(i+1, j),
+	    								   myTerrain.getGridAltitude(i+1, j+1),};
 	    		gl.glBegin(GL.GL_TRIANGLES);
-		    		v1[1] = myTerrain.getGridAltitude(i+1, j) - myTerrain.getGridAltitude(i, j+1);
+		    		v1[1] = h[2] - h[1];
 		    		
 		    		v2[0] = 0;
 		    		v2[2] = -1;
-		    		v2[1] = myTerrain.getGridAltitude(i, j) - myTerrain.getGridAltitude(i, j+1);
+		    		v2[1] = h[0] - h[1];
 		    		
 		    		double[] n1 = crossProduct(v1,v2);
 		    		
 		    		gl.glNormal3d(n1[0], n1[1], n1[2]);
-		    		gl.glVertex3d(i+1,myTerrain.getGridAltitude(i+1, j),j); // P2
-		    		gl.glVertex3d(i,myTerrain.getGridAltitude(i, j+1),j+1);// P1
-			    	gl.glVertex3d(i,myTerrain.getGridAltitude(i, j),j); // P0
+		    		gl.glVertex3d(i+1,h[2],j); // P2
+		    		gl.glVertex3d(i,h[1],j+1);// P1
+			    	gl.glVertex3d(i,h[0],j); // P0
 			    	
 			    	v2[0] = 1;
 		    		v2[2] = 0;
-		    		v2[1] = myTerrain.getGridAltitude(i+1, j+1) - myTerrain.getGridAltitude(i, j+1);
+		    		v2[1] = h[3] - h[1];
 		    		n1 = crossProduct(v2,v1);
 		    		gl.glNormal3d(n1[0], n1[1], n1[2]);
 		    		
-		    		gl.glVertex3d(i+1,myTerrain.getGridAltitude(i+1, j),j); // P5
-		    		gl.glVertex3d(i+1,myTerrain.getGridAltitude(i+1, j+1),j+1); // P4
-			    	gl.glVertex3d(i,myTerrain.getGridAltitude(i, j+1),j+1);// P3
+		    		gl.glVertex3d(i+1,h[2],j); // P2
+		    		gl.glVertex3d(i+1,h[3],j+1); // P3
+			    	gl.glVertex3d(i,h[1],j+1);// P1
 			    	
 			    	
 		    	gl.glEnd();
@@ -138,13 +144,13 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		    	gl.glBegin(GL.GL_TRIANGLES);
 		    		
 		    		gl.glColor3f(1,0,0);
-			    	gl.glVertex3d(i,myTerrain.getGridAltitude(i, j),j); // P0
-			    	gl.glVertex3d(i,myTerrain.getGridAltitude(i, j+1),j+1);// P1
-			    	gl.glVertex3d(i+1,myTerrain.getGridAltitude(i+1, j),j); // P2
+			    	gl.glVertex3d(i,h[0],j); // P0
+			    	gl.glVertex3d(i,h[1],j+1);// P1
+			    	gl.glVertex3d(i+1,h[2],j); // P2
 			    	
-			    	gl.glVertex3d(i,myTerrain.getGridAltitude(i, j+1),j+1);// P3
-			    	gl.glVertex3d(i+1,myTerrain.getGridAltitude(i+1, j+1),j+1); // P4
-			    	gl.glVertex3d(i+1,myTerrain.getGridAltitude(i+1, j),j); // P5
+			    	gl.glVertex3d(i,h[1],j+1);// P1
+			    	gl.glVertex3d(i+1,h[3],j+1); // P3
+			    	gl.glVertex3d(i+1,h[2],j); // P2
 			    	
 		    	gl.glEnd();
 		    	gl.glEnable(GL2.GL_LIGHTING);
@@ -157,7 +163,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	}
 
 	public void drawTree(GL2 gl) {
-    	double height = -1.0;
+    	double height = 1.0;
     	double diameter = 0.1;
     	int slices = 100;
     	double y1 = 0;
@@ -249,6 +255,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    gl.glLoadIdentity();
 //	    GLU glu = new GLU();
 	    gl.glOrtho(-10, 10, -10, 10, 1, 10);
+	    
+	 
 //	    gl.glOrtho(-3, 3, -3, 3, 1, 10);
 //	    gl.glFrustum(-10, 10, -10, 10, 1, 20);
 //	    glu.gluPerspective(60, 10, 10, 8);
