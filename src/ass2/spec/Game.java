@@ -97,13 +97,13 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    for (Tree tree: myTerrain.trees()){
 	    	gl.glPushMatrix();
 		    	double x = tree.getPosition()[0];
-		    	// Negativo para grudar no terreno
-		    	double y = -tree.getPosition()[1];
+		    	double y = tree.getPosition()[1];
 		    	double z = tree.getPosition()[2];
 		    	gl.glTranslated(x, y, z);
 		    	drawTree(gl);
 	    	gl.glPopMatrix();
 	    }
+	    gl.glScaled(1,-1,1);
 	    for(int i = 0; i < width-1; i++){
 	    	for(int j = 0; j < height-1; j++)
 	    	{
@@ -157,7 +157,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	}
 
 	public void drawTree(GL2 gl) {
-    	double height = 1.0;
+    	double height = -1.0;
     	double diameter = 0.1;
     	int slices = 100;
     	double y1 = 0;
