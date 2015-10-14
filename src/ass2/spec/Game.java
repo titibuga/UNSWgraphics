@@ -76,14 +76,14 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		
 		//Basic stuff first
 		GL2 gl = drawable.getGL().getGL2();
-		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT  ); // Fills the scene with blue.
+		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT  );
 	    gl.glMatrixMode(GL2.GL_MODELVIEW);
 	    int width = myTerrain.size().width;
 	    int height = myTerrain.size().height;
 	    gl.glLoadIdentity();
 	    
 	    gl.glPushMatrix();
-	    gl.glColor3f(1,0,0);
+	   // gl.glColor3f(1,0,0);
 	  
 	    double[] v1 = new double[3];
 
@@ -91,19 +91,29 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		v1[2] = -1;
 	    double[] v2 = new double[3];
 	    //Start drawing   
-
+	    
 		gl.glRotated(angle,1,0,0);
 		gl.glTranslated(trans,transy,-10);
+		
+		for(Road rd : myTerrain.roads())
+			{
+				double[] p0 = rd.point(0);
+				double h = myTerrain.altitude(p0[0], p0[1]);
+				rd.draw(gl, h, 0.01);
+			}
+		
+		gl.glColor3d(0.5, 0.5, 0);
 	    for (Tree tree: myTerrain.trees()){
 	    	gl.glPushMatrix();
 		    	double x = tree.getPosition()[0];
 		    	double y = tree.getPosition()[1];
 		    	double z = tree.getPosition()[2];
-		    	System.out.println(y);
+		    	//System.out.println(y);
 		    	gl.glTranslated(x, y, z);
 		    	drawTree(gl);
 	    	gl.glPopMatrix();
 	    }
+	   
 	    //gl.glScaled(1,-1,1);
 	    for(int i = 0; i < width-1; i++){
 	    	
@@ -113,6 +123,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    								   myTerrain.getGridAltitude(i, j+1),
 	    								   myTerrain.getGridAltitude(i+1, j),
 	    								   myTerrain.getGridAltitude(i+1, j+1),};
+	    		 gl.glColor3f(0, 1, 0);
 	    		gl.glBegin(GL.GL_TRIANGLES);
 		    		v1[1] = h[2] - h[1];
 		    		
@@ -140,7 +151,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 			    	
 		    	gl.glEnd();
 		    	gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_LINE);
-		    	gl.glDisable(GL2.GL_LIGHTING);
+		    	//gl.glDisable(GL2.GL_LIGHTING);
 		    	gl.glBegin(GL.GL_TRIANGLES);
 		    		
 		    		gl.glColor3f(1,0,0);
@@ -153,7 +164,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 			    	gl.glVertex3d(i+1,h[2],j); // P2
 			    	
 		    	gl.glEnd();
-		    	gl.glEnable(GL2.GL_LIGHTING);
+		    	//gl.glEnable(GL2.GL_LIGHTING);
 		    	gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
 	    	}
 	    }
@@ -241,8 +252,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		GL2 gl = drawable.getGL().getGL2();
 	    gl.glClearColor(1f, 1f, 1f, 1);
 	    gl.glEnable(GL2.GL_DEPTH_TEST);
+	    /*
 	    gl.glEnable(GL2.GL_LIGHTING);
-	    gl.glEnable(GL2.GL_LIGHT0);
+	    gl.glEnable(GL2.GL_LIGHT0);*/
 	    gl.glEnable(GL2.GL_NORMALIZE);
 	}
 

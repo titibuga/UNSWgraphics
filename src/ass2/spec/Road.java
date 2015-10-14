@@ -3,6 +3,8 @@ package ass2.spec;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.media.opengl.GL2;
+
 /**
  * COMMENT: Comment Road 
  *
@@ -119,6 +121,42 @@ public class Road {
     }
     
     /**
+     * 
+     * Return the 2D tangent vector of the Bezier curve at instant t
+     * 
+     * @param t
+     * @return
+     */
+   
+    public double[] tangent(double t)
+    {
+    	double[] tg = new double[3];
+    	
+    	
+    	int i = (int)Math.floor(t);
+        t = t - i;
+        
+        i *= 6;
+        
+        double x0 = myPoints.get(i++);
+        double y0 = myPoints.get(i++);
+        double x1 = myPoints.get(i++);
+        double y1 = myPoints.get(i++);
+        double x2 = myPoints.get(i++);
+        double y2 = myPoints.get(i++);
+        double x3 = myPoints.get(i++);
+        double y3 = myPoints.get(i++);
+        
+       
+        tg[0] = 3*( b2(0, t) *(x1-x0) + b2(1, t) *(x2 - x1) + b2(2, t) *(x3-x2)) ;
+        tg[1] = 3*( b2(0, t) *(y1-y0) + b2(1, t) *(y2 - y1) + b2(2, t) *(y3-y2));  
+       
+    
+    	
+    	return tg;	
+    }
+    
+    /**
      * Calculate the Bezier coefficients
      * 
      * @param i
@@ -144,6 +182,80 @@ public class Road {
         
         // this should never happen
         throw new IllegalArgumentException("" + i);
+    }
+    
+    /**
+     * Calculate the coeficients for the bezier tangent
+     * 
+     * @param i
+     * @param t
+     * @return
+     */
+    
+    private double b2(int i, double t)
+    {
+    	 switch(i) {
+         
+         case 0:
+             return (1-t) * (1-t);
+
+         case 1:
+             return 2 * (1-t) * t;
+             
+         case 2:
+             return t * t;
+
+         }
+         
+         // this should never happen
+         throw new IllegalArgumentException("" + i);
+    }
+    
+   
+    public void draw(GL2 gl, double h, double step)
+    {
+    	double i = 0;
+    	gl.glColor3f(0,0,0);
+    	gl.glBegin(GL2.GL_TRIANGLE_STRIP);
+    	
+    	while(i < this.size())
+    	{
+    		
+    		double[] p = this.point(i);
+    		double[] tg2d = this.tangent(i);
+    		double[] normal2d = new double[]{-tg2d[1],tg2d[0]};
+    		
+    		//normalize the normal
+    		
+    		double norm = normal2d[0]*normal2d[0] + normal2d[1]*normal2d[1];
+    		norm = Math.sqrt(norm);
+    		normal2d[0] /= norm;
+    		normal2d[1] /= norm;
+    		
+    		// Draw the points on the plane with y = h
+    		
+    		//Order matters! CCW order!
+    		
+    		//TODO: Remove epsilon. For now it is just for it not to be so
+    		// near the ground 
+    		
+    		double eps = 0.001;
+    		double w = this.width()/2;
+    	
+    		
+    		gl.glVertex3d(-w*normal2d[0]+p[0], h + eps, -w*normal2d[1] + p[1]);
+    		gl.glVertex3d(w*normal2d[0]+p[0], h + eps, w*normal2d[1] + p[1]);
+    		
+    		
+    		
+    		
+    		//Increment
+    		i += step;
+    	}
+    	
+    	gl.glEnd();
+    	
+    	
     }
 
 
