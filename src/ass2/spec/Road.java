@@ -215,7 +215,18 @@ public class Road {
     public void draw(GL2 gl, double h, double step)
     {
     	double i = 0;
-    	gl.glColor3f(0,0,0);
+//    	gl.glColor3f(0,0,0);
+    	
+        float matAmbAndDif[] = {0.0f, 0.0f, 0.0f, 1.0f};
+        float matSpec[] = { 0.2f, 0.2f, 0.2f, 0.2f };
+        float matShine[] = { 0.0f };
+        float emm[] = {0.0f, 0.0f, 0.0f, 1.0f};
+        // Material properties of sphere.
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDif,0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, matSpec,0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShine,0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, emm,0);
+        
     	gl.glBegin(GL2.GL_TRIANGLE_STRIP);
     	
     	while(i < this.size())

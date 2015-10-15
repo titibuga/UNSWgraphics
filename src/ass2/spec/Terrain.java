@@ -10,6 +10,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 
 import org.json.JSONArray;
@@ -186,6 +187,79 @@ public class Terrain {
         Road road = new Road(width, spine);
         myRoads.add(road);        
     }
+    
+	private double[] crossProduct(double[] a, double[] b)
+	{
+		double[] result = new double[3];
+		result[0] = (b[2]*a[1] - a[2]*b[1]);
+		result[1] = (b[0]*a[2] - a[0]*b[2]);
+		result[2] = (b[1]*a[0] - a[1]*b[0]);
+		return result;
+	}
+    
+    public void draw(GL2 gl){
+	    double[] v1 = new double[3];
+		v1[0] = 1;
+		v1[2] = -1;
+	    double[] v2 = new double[3];
+    	// Materials and Color of terrain
+    	float matAmbAndDifTerrain[] = {1.0f, 1.0f, 0.0f, 1.0f};
+        float matSpecTerrain[] = { 0.0f, 0.0f, 0.0f, 0.2f };
+        float matShineTerrain[] = { 0.0f };
+        float emmTerrain[] = {0.0f, 0.0f, 0.0f, 1.0f};
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifTerrain,0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, matSpecTerrain,0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShineTerrain,0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, emmTerrain,0);
+	    // Draw terrain
+	    for(int i = 0; i < size().width-1; i++) {
+	    	for(int j = 0; j < size().height-1; j++) {
+	    		double[] h = new double[]{ getGridAltitude(i, j),
+	    								   getGridAltitude(i, j+1),
+	    								   getGridAltitude(i+1, j),
+	    								   getGridAltitude(i+1, j+1),};
+	    		gl.glColor3f(0, 1, 0);
+	    		gl.glBegin(GL.GL_TRIANGLES);
+		    		v1[1] = h[2] - h[1];
+		    		
+		    		v2[0] = 0;
+		    		v2[2] = -1;
+		    		v2[1] = h[0] - h[1];
+		    		
+		    		double[] n1 = crossProduct(v1,v2);
+		    		
+		    		gl.glNormal3d(n1[0], n1[1], n1[2]);
+		    		gl.glVertex3d(i+1,h[2],j); // P2
+		    		gl.glVertex3d(i,h[1],j+1);// P1
+			    	gl.glVertex3d(i,h[0],j); // P0
+			    	
+			    	v2[0] = 1;
+		    		v2[2] = 0;
+		    		v2[1] = h[3] - h[1];
+		    		n1 = crossProduct(v2,v1);
+		    		gl.glNormal3d(n1[0], n1[1], n1[2]);
+		    		
+		    		gl.glVertex3d(i+1,h[2],j); // P2
+		    		gl.glVertex3d(i+1,h[3],j+1); // P3
+			    	gl.glVertex3d(i,h[1],j+1);// P1
+			    	
+			    	
+		    	gl.glEnd();
+		    	
+		    	gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_LINE);
+		    	gl.glBegin(GL.GL_TRIANGLES);
 
-
+			    	gl.glVertex3d(i,h[0],j); // P0
+			    	gl.glVertex3d(i,h[1],j+1);// P1
+			    	gl.glVertex3d(i+1,h[2],j); // P2
+			    	
+			    	gl.glVertex3d(i,h[1],j+1);// P1
+			    	gl.glVertex3d(i+1,h[3],j+1); // P3
+			    	gl.glVertex3d(i+1,h[2],j); // P2
+			    	
+		    	gl.glEnd();
+		    	gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
+	    	}
+	    }
+    }
 }
