@@ -1,5 +1,6 @@
 package ass2.spec;
 
+import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
@@ -30,10 +31,16 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
     int transy = 0;
     int xAngle = 0;
     int yAngle = 0;
+    double camSpeed = 0.3;
+    double posCamx = 0, posCamz = 0;
+    double[] rotationCam;
 
     public Game(Terrain terrain) {
     	super("Assignment 2");
         myTerrain = terrain;
+        
+        //Initial cam position facing the positive z axis
+        rotationCam = new double[]{0, 180, 0};
    
     }
     
@@ -78,8 +85,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		GL2 gl = drawable.getGL().getGL2();
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT  );
 	    gl.glMatrixMode(GL2.GL_MODELVIEW);
-
 	    gl.glLoadIdentity();
+	    
+	    setUpCamera(gl);
 	    
 	    GLUT glut = new GLUT();
 	    float lightPos0[] = { myTerrain.size().width/2, 10.0f, myTerrain.size().width/2, 1.0f };
@@ -88,7 +96,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    
 		    //Start drawing   
 			gl.glRotated(angle,1,0,0);
-			gl.glTranslated(trans,transy,-10);
+			gl.glTranslated(trans,transy,0);
 			
 			// Draw Light
 			gl.glPushMatrix();
@@ -126,6 +134,38 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	        myTerrain.draw(gl);
 	    gl.glPopMatrix();
 	}
+	
+	public void setUpCamera(GL2 gl){
+		
+		//double h = this.myTerrain.altitude(posCamx, posCamz);
+		double h = 0;
+		double camHeight = 2;
+		Dimension s = myTerrain.size();
+		
+		//Get height from terrain if we are on it
+		if(posCamz >= 0 && posCamx >= 0 &&
+			       posCamz < s.height && posCamx < s.width)
+			h = myTerrain.altitude(posCamx, posCamz);
+		
+		
+		//GLU glu = new GLU();
+		//glu.gluLookAt(0, h + camHeight, 0,
+		//			  0, h, 3, 
+		//			  0, 1, 0);
+		
+		//Apply camera rotations
+		gl.glRotated(-rotationCam[0], 1, 0, 0);
+		gl.glRotated(-rotationCam[1], 0, 1, 0);
+		gl.glRotated(-rotationCam[2], 0, 0, 1);
+			
+		
+		//Translate and rotate it to its proper position
+		gl.glTranslated(-posCamx, -(h + camHeight), -posCamz);
+		
+		
+		
+		
+	}
 
 	@Override
 	public void dispose(GLAutoDrawable drawable) {
@@ -134,7 +174,6 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 
 	@Override
 	public void init(GLAutoDrawable drawable) {
-		// TODO Auto-generated method stub
 		// Temporary
 		GL2 gl = drawable.getGL().getGL2();
 	    gl.glClearColor(1f, 1f, 1f, 1);
@@ -147,17 +186,16 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	@Override
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width,
 			int height) {
-		// TODO Auto-generated method stub
 		GL2 gl = drawable.getGL().getGL2();
 	    gl.glMatrixMode(GL2.GL_PROJECTION);
 	    gl.glLoadIdentity();
-//	    GLU glu = new GLU();
-	    gl.glOrtho(-10, 10, -10, 10, 1, 10);
+
+	    double window = 0.5;
+	  //  gl.glOrtho(-window, window, -window, window, 0.1, 10);
 	    
-	 
 //	    gl.glOrtho(-3, 3, -3, 3, 1, 10);
-//	    gl.glFrustum(-10, 10, -10, 10, 1, 20);
-//	    glu.gluPerspective(60, 10, 10, 8);
+	    gl.glFrustum(-window, window, -window, window, 0.5, 10);
+//	    glu.gluPerspective(60, 1, 0, 10);
 	}
 	
 	
@@ -166,22 +204,24 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		// TODO Auto-generated method stub
 		switch (e.getKeyCode()) {  
 			case KeyEvent.VK_U:
-				transy--;
+				posCamz+= camSpeed;
 				break;
 			case KeyEvent.VK_J:
-				transy++;
+				posCamz-= camSpeed;
 				break;		
 			case KeyEvent.VK_LEFT:
-				trans--;
+				posCamx+= camSpeed;
 				break;
 			case KeyEvent.VK_RIGHT:
-				trans++;
+				posCamx-= camSpeed;
 				break;
 			 case KeyEvent.VK_DOWN:
-				angle = (angle - 5) % 360;
+				//angle = (angle - 5) % 360;
+				 rotationCam[0] = (rotationCam[0] - 5) % 360;
 				break;
 		     case KeyEvent.VK_UP:
-				angle = (angle + 5) % 360;
+				//angle = (angle + 5) % 360;
+		    	 rotationCam[0] =  (rotationCam[0] + 5) % 360;
 				break;	
 		    case KeyEvent.VK_W:
 		   		xAngle--;
@@ -203,6 +243,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 				break;
 		 }
 	}
+	
+
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
