@@ -14,6 +14,14 @@ public class Road {
 
     private List<Double> myPoints;
     private double myWidth;
+	
+	//Texture file information
+	private String TEX_0 = "src/ass2/spec/road_texture.jpg";
+	private String TEX_F_0 = ".jpg";
+	
+	//Texture data
+	private MyTexture myTextures[] = new MyTexture[1];
+	
     
     /** 
      * Create a new road starting at the specified point
@@ -217,8 +225,8 @@ public class Road {
     	double i = 0;
 //    	gl.glColor3f(0,0,0);
     	
-        float matAmbAndDif[] = {0.0f, 0.0f, 0.0f, 1.0f};
-        float matSpec[] = { 0.2f, 0.2f, 0.2f, 0.2f };
+        float matAmbAndDif[] = {0.5f, 0.5f, 0.5f, 1.0f};
+        float matSpec[] = { 0.4f, 0.4f, 0.4f, 0.2f };
         float matShine[] = { 0.0f };
         float emm[] = {0.0f, 0.0f, 0.0f, 1.0f};
         // Material properties of sphere.
@@ -227,6 +235,12 @@ public class Road {
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShine,0);
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, emm,0);
         
+        // Texture road
+        myTextures[0] = new MyTexture(gl,TEX_0,TEX_F_0,true);
+    	gl.glActiveTexture(GL2.GL_TEXTURE0); 	
+    	gl.glEnable(GL2.GL_TEXTURE_2D);
+    	gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[0].getTextureId());
+    	
     	gl.glBegin(GL2.GL_TRIANGLE_STRIP);
     	
     	while(i < this.size())
@@ -253,8 +267,9 @@ public class Road {
     		double eps = 0.001;
     		double w = this.width()/2;
     	
-    		
+    		gl.glTexCoord2d(-w*normal2d[0]+p[0], -w*normal2d[1] + p[1]); 
     		gl.glVertex3d(-w*normal2d[0]+p[0], h + eps, -w*normal2d[1] + p[1]);
+    		gl.glTexCoord2d(w*normal2d[0]+p[0], w*normal2d[1] + p[1]); 
     		gl.glVertex3d(w*normal2d[0]+p[0], h + eps, w*normal2d[1] + p[1]);
     		
     		
