@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 
+
 /**
  * COMMENT: Comment HeightMap 
  *
@@ -30,6 +31,13 @@ public class Terrain {
     private List<Tree> myTrees;
     private List<Road> myRoads;
     private float[] mySunlight;
+	
+	//Texture file information
+	private String TEX_0 = "src/ass2/spec/grass_texture.jpg";
+	private String TEX_F_0 = ".jpg";
+	
+	//Texture data
+	private MyTexture myTextures[] = new MyTexture[2];
 
     /**
      * Create a new terrain
@@ -43,6 +51,7 @@ public class Terrain {
         myTrees = new ArrayList<Tree>();
         myRoads = new ArrayList<Road>();
         mySunlight = new float[3];
+        
     }
     
     public Terrain(Dimension size) {
@@ -198,19 +207,23 @@ public class Terrain {
 	}
     
     public void draw(GL2 gl){
+    	// TEXTURE
+        myTextures[0] = new MyTexture(gl,TEX_0,TEX_F_0,true);
+    	gl.glActiveTexture(GL2.GL_TEXTURE0); 	
+    	gl.glEnable(GL2.GL_TEXTURE_2D);
+    	gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[0].getTextureId());  
+    	
 	    double[] v1 = new double[3];
 		v1[0] = 1;
 		v1[2] = -1;
 	    double[] v2 = new double[3];
     	// Materials and Color of terrain
-    	float matAmbAndDifTerrain[] = {1.0f, 1.0f, 0.0f, 1.0f};
+    	float matAmbAndDifTerrain[] = {0.55f, 0.65f, 0.31f, 1.0f};
         float matSpecTerrain[] = { 0.1f, 0.1f, 0.1f, 1.0f };
-        float matShineTerrain[] = { 30.0f };
-        float emmTerrain[] = {0.0f, 0.0f, 0.0f, 1.0f};
+        float matShineTerrain[] = { 3.0f };
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifTerrain,0);
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, matSpecTerrain,0);
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShineTerrain,0);
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, emmTerrain,0);
 	    // Draw terrain
 	    for(int i = 0; i < size().width-1; i++) {
 	    	for(int j = 0; j < size().height-1; j++) {
@@ -218,7 +231,7 @@ public class Terrain {
 	    								   getGridAltitude(i, j+1),
 	    								   getGridAltitude(i+1, j),
 	    								   getGridAltitude(i+1, j+1),};
-	    		gl.glColor3f(0, 1, 0);
+		    	
 	    		gl.glBegin(GL.GL_TRIANGLES);
 		    		v1[1] = h[2] - h[1];
 		    		
@@ -229,8 +242,11 @@ public class Terrain {
 		    		double[] n1 = crossProduct(v1,v2);
 		    		
 		    		gl.glNormal3d(n1[0], n1[1], n1[2]);
+		    		gl.glTexCoord2d(0, 0); 
 		    		gl.glVertex3d(i+1,h[2],j); // P2
+		    		gl.glTexCoord2d(1, 1); 
 		    		gl.glVertex3d(i,h[1],j+1);// P1
+		    		gl.glTexCoord2d(1, 0); 
 			    	gl.glVertex3d(i,h[0],j); // P0
 			    	
 			    	v2[0] = 1;
@@ -239,27 +255,40 @@ public class Terrain {
 		    		n1 = crossProduct(v2,v1);
 		    		gl.glNormal3d(n1[0], n1[1], n1[2]);
 		    		
+		    		gl.glTexCoord2d(0, 0); 
 		    		gl.glVertex3d(i+1,h[2],j); // P2
+		    		gl.glTexCoord2d(0, 1); 
 		    		gl.glVertex3d(i+1,h[3],j+1); // P3
+		    		gl.glTexCoord2d(1, 1); 
 			    	gl.glVertex3d(i,h[1],j+1);// P1
-			    	
-			    	
 		    	gl.glEnd();
-		    	
-		    	gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_LINE);
-		    	gl.glBegin(GL.GL_TRIANGLES);
-
-			    	gl.glVertex3d(i,h[0],j); // P0
-			    	gl.glVertex3d(i,h[1],j+1);// P1
-			    	gl.glVertex3d(i+1,h[2],j); // P2
-			    	
-			    	gl.glVertex3d(i,h[1],j+1);// P1
-			    	gl.glVertex3d(i+1,h[3],j+1); // P3
-			    	gl.glVertex3d(i+1,h[2],j); // P2
-			    	
-		    	gl.glEnd();
-		    	gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
 	    	}
 	    }
+	    gl.glDisable(GL2.GL_TEXTURE_2D);
+    	
+	    // Draw grid of terrain
+	    gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_LINE);
+    	float matAmbAndDifTerrainG[] = {0.0f, 0.0f, 0.0f, 1.0f};
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifTerrainG,0);
+	    for(int i = 0; i < size().width-1; i++) {
+	    	for(int j = 0; j < size().height-1; j++) {
+	    		double[] h = new double[]{ getGridAltitude(i, j),
+						   getGridAltitude(i, j+1),
+						   getGridAltitude(i+1, j),
+						   getGridAltitude(i+1, j+1),};
+	    		gl.glLineWidth(3.0f);
+	        	gl.glBegin(GL.GL_TRIANGLES);
+	    	    	gl.glVertex3d(i,h[0],j); // P0
+	    	    	gl.glVertex3d(i,h[1],j+1);// P1
+	    	    	gl.glVertex3d(i+1,h[2],j); // P2
+	    	    	
+	    	    	gl.glVertex3d(i,h[1],j+1);// P1
+	    	    	gl.glVertex3d(i+1,h[3],j+1); // P3
+	    	    	gl.glVertex3d(i+1,h[2],j); // P2
+	        	gl.glEnd();
+	        	gl.glLineWidth(1.0f);
+	    	}
+	    }
+	    gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
     }
 }

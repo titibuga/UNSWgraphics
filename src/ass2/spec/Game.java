@@ -92,15 +92,15 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    GLUT glut = new GLUT();
 	    
 	    float lightDir[] = { myTerrain.getSunlight()[0], myTerrain.getSunlight()[1], myTerrain.getSunlight()[2], 0.0f };
-        float lightAmb[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-        float lightDifAndSpec[] = { 0.7f, 0.7f, 0.7f, 1.0f };
-        float globAmb[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+        float lightAmb[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+        float lightDifAndSpec[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+//        float globAmb[] = { 0.3f, 0.3f, 0.3f, 1.0f };
 
         // Light0 properties.
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, lightAmb,0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightDifAndSpec,0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, lightDifAndSpec,0);
-        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmb,0); 
+//        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmb,0); 
         gl.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, 1); 
         
 	    gl.glPushMatrix();
