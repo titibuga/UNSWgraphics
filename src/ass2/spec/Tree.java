@@ -31,13 +31,21 @@ public class Tree {
     public double[] getPosition() {
         return myPos;
     }
+    
+    public void loadTextures(GL2 gl)
+    {
+    	//Texture of the trunk
+    	 myTextures[0] = new MyTexture(gl,TEX_0,TEX_F_0,true);
+    	// Texture of Sphere
+         myTextures[1] = new MyTexture(gl,TEX_1,TEX_F_1,true);
+    }
    
     public void draw(GL2 gl, double height, double diameter, double diameter_leaves) {
     	int slices = 100;
     	double y1 = 0;
     	double y2 = height;
     	
-        myTextures[0] = new MyTexture(gl,TEX_0,TEX_F_0,true);
+       
     	gl.glActiveTexture(GL2.GL_TEXTURE0); 	
     	gl.glEnable(GL2.GL_TEXTURE_2D);
     	gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[0].getTextureId());  
@@ -112,11 +120,10 @@ public class Tree {
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShineLeaves, 0);
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, emmLeaves, 0);
         
-        // Texture of Spheres
-        myTextures[0] = new MyTexture(gl,TEX_1,TEX_F_1,true);
+        
     	gl.glActiveTexture(GL2.GL_TEXTURE0); 	
     	gl.glEnable(GL2.GL_TEXTURE_2D);
-    	gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[0].getTextureId());
+    	gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[1].getTextureId());
     	
     	//Draw Spheres
         gl.glPushMatrix();

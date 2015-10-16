@@ -115,7 +115,6 @@ public class Terrain {
      * @return
      */
     public double getGridAltitude(int x, int z) {
-    	//TODO: CHANGE THIS SHIT (minus)
         return myAltitude[x][z];
     }
 
@@ -145,12 +144,21 @@ public class Terrain {
         int zInt = (int) z;
         int xInt2 = (int) x;
         int zInt2 = (int) z;
+        
         if (x - xInt != 0){
         	xInt2++;
         }
         if (z - zInt != 0){
         	zInt2++;
         }
+        
+        if(xInt < 0 || zInt < 0 ||
+			       zInt2 >= this.size().height ||
+			       xInt2 >= this.size().width)
+        	return 0;
+        
+        
+        
         double[][] p = new double [4][3];
         p[0][0] = xInt;
         p[0][1] = zInt;
@@ -205,10 +213,18 @@ public class Terrain {
 		result[2] = (b[1]*a[0] - a[1]*b[0]);
 		return result;
 	}
+	
+	public void loadTextures(GL2 gl)
+	{
+		// Texture ground
+        myTextures[0] = new MyTexture(gl,TEX_0,TEX_F_0,true);
+        
+        //Recursively call the load texture of other objects from the terrain
+        for(Tree t : this.myTrees) t.loadTextures(gl);
+        for(Road r : this.myRoads) r.loadTextures(gl);
+	}
     
     public void draw(GL2 gl){
-    	// TEXTURE
-        myTextures[0] = new MyTexture(gl,TEX_0,TEX_F_0,true);
     	gl.glActiveTexture(GL2.GL_TEXTURE0); 	
     	gl.glEnable(GL2.GL_TEXTURE_2D);
     	gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[0].getTextureId());  

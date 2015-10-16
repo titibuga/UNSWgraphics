@@ -219,6 +219,12 @@ public class Road {
          throw new IllegalArgumentException("" + i);
     }
     
+    public void loadTextures(GL2 gl)
+    {
+    	// Texture road
+        myTextures[0] = new MyTexture(gl,TEX_0,TEX_F_0,true);
+    }
+    
    
     public void draw(GL2 gl, double h, double step)
     {
@@ -235,8 +241,7 @@ public class Road {
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShine,0);
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, emm,0);
         
-        // Texture road
-        myTextures[0] = new MyTexture(gl,TEX_0,TEX_F_0,true);
+        
     	gl.glActiveTexture(GL2.GL_TEXTURE0); 	
     	gl.glEnable(GL2.GL_TEXTURE_2D);
     	gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[0].getTextureId());

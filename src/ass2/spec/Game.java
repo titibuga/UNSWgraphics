@@ -34,13 +34,15 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
     double camSpeed = 0.3;
     double posCamx = 0, posCamz = 0;
     double[] rotationCam;
+    boolean firstPerson;
 
     public Game(Terrain terrain) {
     	super("Assignment 2");
         myTerrain = terrain;
+        firstPerson = false;
         
-        //Initial cam position facing the positive z axis
-        rotationCam = new double[]{0, 180, 0};
+        //Initial cam position 
+        rotationCam = new double[]{0, 0, 0};
    
     }
     
@@ -106,7 +108,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    gl.glPushMatrix();
 	    
 		    //Start drawing   
-			gl.glRotated(angle,1,0,0);
+	    /*
+			gl.glRotated(angle,1,0,0);*/
 			gl.glTranslated(trans,transy,0);
 			
 			// Draw Light
@@ -119,6 +122,19 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		    	gl.glColor3f(0,0,0);
 		    	glut.glutSolidSphere(0.2, 40, 40);
 			gl.glPopMatrix();
+			
+			//Draw avatar 
+			if(!this.firstPerson)
+			{
+				double hav;
+				
+				hav = myTerrain.altitude(posCamx, posCamz);
+				gl.glPushMatrix();
+				gl.glTranslated(posCamx, hav + 0.20 , posCamz);
+				gl.glRotated(-90 + rotationCam[1],0,1,0);
+				glut.glutSolidTeapot(0.3);
+				gl.glPopMatrix();
+			}
 			
 			// Draw roads
 			for(Road rd : myTerrain.roads()) {
@@ -148,30 +164,42 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	
 	public void setUpCamera(GL2 gl){
 		
-		//double h = this.myTerrain.altitude(posCamx, posCamz);
 		double h = 0;
-		double camHeight = 2;
+		double camHeight = 3;
+		double thirdPersDist = 3;
 		Dimension s = myTerrain.size();
 		
-		//Get height from terrain if we are on it
-		if(posCamz >= 0 && posCamx >= 0 &&
-			       posCamz < s.height && posCamx < s.width)
-			h = myTerrain.altitude(posCamx, posCamz);
-		
-		
-		//GLU glu = new GLU();
-		//glu.gluLookAt(0, h + camHeight, 0,
-		//			  0, h, 3, 
-		//			  0, 1, 0);
-		
+		//Get height from terrain 
+		h = myTerrain.altitude(posCamx, posCamz);
+	
 		//Apply camera rotations
-		gl.glRotated(-rotationCam[0], 1, 0, 0);
-		gl.glRotated(-rotationCam[1], 0, 1, 0);
-		gl.glRotated(-rotationCam[2], 0, 0, 1);
-			
+		if(firstPerson)
+			gl.glRotated(-rotationCam[0], 1, 0, 0);
+		else
+			gl.glRotated(25, 1, 0 , 0);	
 		
-		//Translate and rotate it to its proper position
-		gl.glTranslated(-posCamx, -(h + camHeight), -posCamz);
+		//180 for the cam to be facing the positive z
+		gl.glRotated(180, 0, 1, 0);
+		gl.glRotated(-rotationCam[2], 0, 0, 1);
+		
+		//If we are in third person the cam rotates in a difFerent
+		// axis for the y rotation
+		if(!firstPerson)
+		{
+			gl.glTranslated(0,0,thirdPersDist);
+			gl.glRotated(-rotationCam[1], 0, 1, 0);
+			gl.glTranslated(0,0,-thirdPersDist);
+		}	
+		else
+			gl.glRotated(-rotationCam[1], 0, 1, 0);
+		
+		if(firstPerson)
+			//0.5 more so it isn't inside the terrain.
+			gl.glTranslated(-posCamx, -(h+0.5), -posCamz);
+		else
+			gl.glTranslated(-posCamx, -(h + camHeight), -(posCamz -thirdPersDist));
+		
+		
 		
 		
 		
@@ -192,6 +220,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    gl.glEnable(GL2.GL_LIGHTING);
 	    gl.glEnable(GL2.GL_LIGHT0);
 	    gl.glEnable(GL2.GL_NORMALIZE);
+	    
+	    myTerrain.loadTextures(gl);
 	}
 
 	@Override
@@ -200,31 +230,35 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		GL2 gl = drawable.getGL().getGL2();
 	    gl.glMatrixMode(GL2.GL_PROJECTION);
 	    gl.glLoadIdentity();
+	    double distNear = 0;
+	    
+	    if(!firstPerson) distNear = 2;
 
 	    double window = 0.5;
 	  //  gl.glOrtho(-window, window, -window, window, 0.1, 10);
-	    
-//	    gl.glOrtho(-3, 3, -3, 3, 1, 10);
-	    gl.glFrustum(-window, window, -window, window, 0.5, 10);
-//	    glu.gluPerspective(60, 1, 0, 10);
+	    GLU glu = new GLU();
+	  //  gl.glFrustum(-window, window, -window, window, 0.5, 10);
+	    glu.gluPerspective(60, 1, distNear, 10);
 	}
 	
 	
 	@Override
 	public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
+		int direction = 1;
 		switch (e.getKeyCode()) {  
-			case KeyEvent.VK_U:
-				posCamz+= camSpeed;
-				break;
 			case KeyEvent.VK_J:
-				posCamz-= camSpeed;
-				break;		
+				direction = -1;
+			case KeyEvent.VK_U:
+				double rads = Math.toRadians(rotationCam[1]);
+				posCamz+= direction*Math.cos(rads)*camSpeed;
+				posCamx+= direction*Math.sin(rads)*camSpeed;	
+				break;
+				
 			case KeyEvent.VK_LEFT:
-				posCamx+= camSpeed;
+				rotationCam[1] = (rotationCam[1] + 5)%360;
 				break;
 			case KeyEvent.VK_RIGHT:
-				posCamx-= camSpeed;
+				rotationCam[1] = (rotationCam[1] - 5)%360;
 				break;
 			 case KeyEvent.VK_DOWN:
 				//angle = (angle - 5) % 360;
@@ -246,6 +280,20 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		   		yAngle = yAngle - 10;
 		   		if (yAngle < 0.0) yAngle += 360.0;
 		   		break;
+		   		
+		   		
+		    case KeyEvent.VK_P:
+		   		firstPerson = !firstPerson;
+		   		break;
+		   		
+		    case KeyEvent.VK_N:
+		   		transy--;
+		   		break;
+		   		
+		    case KeyEvent.VK_M:
+		   		transy++;
+		   		break;		
+		   		
 		    case KeyEvent.VK_D:
 		   		yAngle = yAngle + 10;
 		   		if (yAngle > 360.0) yAngle -= 360.0;
