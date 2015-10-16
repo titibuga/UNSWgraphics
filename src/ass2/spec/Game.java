@@ -90,8 +90,19 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    setUpCamera(gl);
 	    
 	    GLUT glut = new GLUT();
-	    float lightPos0[] = { myTerrain.size().width/2, 10.0f, myTerrain.size().width/2, 1.0f };
 	    
+	    float lightDir[] = { myTerrain.getSunlight()[0], myTerrain.getSunlight()[1], myTerrain.getSunlight()[2], 0.0f };
+        float lightAmb[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+        float lightDifAndSpec[] = { 0.7f, 0.7f, 0.7f, 1.0f };
+        float globAmb[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+
+        // Light0 properties.
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, lightAmb,0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightDifAndSpec,0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, lightDifAndSpec,0);
+        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmb,0); 
+        gl.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, 1); 
+        
 	    gl.glPushMatrix();
 	    
 		    //Start drawing   
@@ -102,9 +113,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 			gl.glPushMatrix();
 		    	gl.glRotated(xAngle, 1.0, 0.0, 0.0);
 		    	gl.glRotated(yAngle, 0.0, 0.0, 1.0);
-		    	gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightPos0, 0);
-		    	gl.glTranslatef(lightPos0[0], lightPos0[1], lightPos0[2]);
+		    	gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightDir, 0);
 		    	// Dark ball
+		    	gl.glTranslatef(lightDir[0], lightDir[1], lightDir[2]);
 		    	gl.glColor3f(0,0,0);
 		    	glut.glutSolidSphere(0.2, 40, 40);
 			gl.glPopMatrix();
@@ -224,19 +235,19 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		    	 rotationCam[0] =  (rotationCam[0] + 5) % 360;
 				break;	
 		    case KeyEvent.VK_W:
-		   		xAngle--;
+		   		xAngle = xAngle - 10;
 		   		if (xAngle < 0.0) xAngle += 360.0;
 		   		break;
 		    case KeyEvent.VK_S:
-		   		xAngle++;
+		   		xAngle = xAngle + 10;
 		   		if (xAngle > 360.0) xAngle -= 360.0;
 		   		break;
 		    case KeyEvent.VK_A:
-		   		yAngle--;
+		   		yAngle = yAngle - 10;
 		   		if (yAngle < 0.0) yAngle += 360.0;
 		   		break;
 		    case KeyEvent.VK_D:
-		   		yAngle++;
+		   		yAngle = yAngle + 10;
 		   		if (yAngle > 360.0) yAngle -= 360.0;
 		   		break;
 			default:

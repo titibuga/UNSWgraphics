@@ -204,8 +204,8 @@ public class Terrain {
 	    double[] v2 = new double[3];
     	// Materials and Color of terrain
     	float matAmbAndDifTerrain[] = {1.0f, 1.0f, 0.0f, 1.0f};
-        float matSpecTerrain[] = { 0.0f, 0.0f, 0.0f, 0.2f };
-        float matShineTerrain[] = { 0.0f };
+        float matSpecTerrain[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+        float matShineTerrain[] = { 30.0f };
         float emmTerrain[] = {0.0f, 0.0f, 0.0f, 1.0f};
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifTerrain,0);
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, matSpecTerrain,0);
