@@ -1,12 +1,12 @@
 package ass2.spec;
 
+
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLCapabilities;
@@ -59,6 +59,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
           panel.addGLEventListener(this);
           panel.addKeyListener(this);
           panel.setFocusable(true);  
+
  
           // Add an animator to call 'display' at 60fps        
           FPSAnimator animator = new FPSAnimator(60);
@@ -265,6 +266,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    
 	    myTerrain.loadTextures(gl);
 	}
+	
 
 	@Override
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width,
@@ -272,7 +274,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		GL2 gl = drawable.getGL().getGL2();
 	    gl.glMatrixMode(GL2.GL_PROJECTION);
 	    gl.glLoadIdentity();
-	    double distNear = 0;
+	    double distNear = 0.01;
+	    double ar = ((double)width)/((double)height);
 	    
 	    if(!firstPerson) distNear = 2;
 
@@ -280,7 +283,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	  //  gl.glOrtho(-window, window, -window, window, 0.1, 10);
 	    GLU glu = new GLU();
 	  //  gl.glFrustum(-window, window, -window, window, 0.5, 10);
-	    glu.gluPerspective(60, 1, distNear, 10);
+	    glu.gluPerspective(60, ar, distNear, 10);
+	    System.out.println(distNear);
 	}
 	
 	
@@ -312,6 +316,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 				break;	
 		    case KeyEvent.VK_P:
 		   		firstPerson = !firstPerson;
+		   		//Force reshape
+		   		//TODO: Force reshape in a better way
+		   		Dimension d = getSize();
+		   		setSize(d.height/2, d.width/2);
+		   		setSize(d.height, d.width);
+		   		System.out.println("Hue");
 		   		break;
 		    case KeyEvent.VK_N:
 		   		transy--;
