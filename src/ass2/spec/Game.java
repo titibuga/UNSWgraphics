@@ -38,6 +38,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
     boolean firstPerson;
     float green = 0.2f;
     float red = 0.2f;
+    boolean night = false;
 
     public Game(Terrain terrain) {
     	super("Assignment 2");
@@ -87,72 +88,63 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	@Override
 	public void display(GLAutoDrawable drawable) {
 		//Basic stuff first
-		updateSun();
+		if (!night) updateSun();
 		GL2 gl = drawable.getGL().getGL2();
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT  );
 	    gl.glMatrixMode(GL2.GL_MODELVIEW);
 	    gl.glLoadIdentity();
 	    
 	    setUpCamera(gl);
-	    
 	    GLUT glut = new GLUT();
-	    // Direction of sun with y + 10
-	    float lightDir[] = { myTerrain.getSunlight()[0], myTerrain.getSunlight()[1], myTerrain.getSunlight()[2], 0.0f };
-        float lightAmb[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-        float lightDifAndSpec[] = { 0.8f, 0.8f, 0.8f, 1.0f };
-//        float globAmb[] = { 0.3f, 0.3f, 0.3f, 1.0f };
-
-        // Light0 properties.
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, lightAmb,0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightDifAndSpec,0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, lightDifAndSpec,0);
-//        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmb,0); 
-        gl.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, 1); 
-        
 	    gl.glPushMatrix();
-	    
 		    //Start drawing   
-	    /*
-			gl.glRotated(angle,1,0,0);*/
 			gl.glTranslated(trans,transy,0);
-			
 			// Draw Light
-	    	float matAmbAndDifSun[] = {red, green, 0.0f, 1.0f};
-	        float matSpecSun[] = { 0.3f, 0.3f, 1f, 1.0f };
-	        float matShineSun[] = { 20.0f };
-	        float emm[] = {0.7f, 0.7f, 0.0f, 1.0f};
-	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifSun,0);
-	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, matSpecSun,0);
-	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShineSun,0);
-	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, emm,0);
-	        gl.glPushMatrix();
-		    	gl.glRotated(xAngle, 1.0, 0.0, 1.0);
-		    	gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightDir, 0);
-		    	// Draw Sun
-		    	gl.glTranslatef(lightDir[0], lightDir[1], lightDir[2]);
-		    	gl.glRotated(theta, 1, 1, 1);
-		    	double sun_lines = 0.35;
-		    	double stack = 3;
-		    	double sun_rays = 10;
-		    	gl.glPushMatrix();
-			        for (int j = 0; j < stack; j++) { 
-			        	gl.glRotated(180f / stack, 0, 1, 0 );
-			        	gl.glPushMatrix();
-					        for (int i = 0; i < sun_rays; i++) { 
-					        	gl.glRotated(360f / sun_rays, 0, 0, 1 );
-					            gl.glLineWidth(8.0f);
-					        	gl.glBegin(GL2.GL_LINES);
-					          	   gl.glVertex2d(0,0);
-					          	   gl.glVertex2d(sun_lines,0);
-					            gl.glEnd();
-					            gl.glLineWidth(1.0f);
-					        }
-				        gl.glPopMatrix();
-			        }
-		        gl.glPopMatrix();
-		    	glut.glutSolidSphere(0.1, 40, 40);
-			gl.glPopMatrix();
-			
+			if (!night) {
+				gl.glEnable(GL2.GL_LIGHT0);
+				gl.glDisable(GL2.GL_LIGHT1);
+		    	float matAmbAndDifSun[] = {red, green, 0.0f, 1.0f};
+		        float matSpecSun[] = { 0.3f, 0.3f, 1f, 1.0f };
+		        float matShineSun[] = { 20.0f };
+		        float emm[] = {0.7f, 0.7f, 0.0f, 1.0f};
+		        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifSun,0);
+		        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, matSpecSun,0);
+		        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShineSun,0);
+		        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, emm,0);
+		        gl.glPushMatrix();
+			    	gl.glRotated(xAngle, 1.0, 0.0, 1.0);
+			    	float lightDir[] = { myTerrain.getSunlight()[0], myTerrain.getSunlight()[1], myTerrain.getSunlight()[2], 0.0f };
+			    	gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightDir, 0);
+			    	// Draw Sun
+			    	gl.glTranslatef(lightDir[0], lightDir[1], lightDir[2]);
+			    	gl.glRotated(theta, 0, 1, 0);
+			    	double sun_lines = 0.35;
+			    	double stack = 3;
+			    	double sun_rays = 10;
+			    	gl.glPushMatrix();
+				        for (int j = 0; j < stack; j++) { 
+				        	gl.glRotated(180f / stack, 0, 1, 0 );
+				        	gl.glPushMatrix();
+						        for (int i = 0; i < sun_rays; i++) { 
+						        	gl.glRotated(360f / sun_rays, 0, 0, 1 );
+						            gl.glLineWidth(8.0f);
+						        	gl.glBegin(GL2.GL_LINES);
+						          	   gl.glVertex2d(0,0);
+						          	   gl.glVertex2d(sun_lines,0);
+						            gl.glEnd();
+						            gl.glLineWidth(1.0f);
+						        }
+					        gl.glPopMatrix();
+				        }
+			        gl.glPopMatrix();
+			    	glut.glutSolidSphere(0.1, 40, 40);
+				gl.glPopMatrix();
+			}
+			else {
+				gl.glDisable(GL2.GL_LIGHT0);
+				gl.glEnable(GL2.GL_LIGHT1);
+
+			}
 			//Draw avatar 
 	    	float matAmbAndDifAvatar[] = {1f, 0f, 0.0f, 1.0f};
 	        float matSpecAvatar[] = { 0.1f, 0.1f, 0.1f, 1.0f };
@@ -165,12 +157,22 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 			if(!this.firstPerson)
 			{
 				double hav;
-				
 				hav = myTerrain.altitude(posCamx, posCamz);
 				gl.glPushMatrix();
-				gl.glTranslated(posCamx, hav + 0.20 , posCamz);
-				gl.glRotated(-90 + rotationCam[1],0,1,0);
-				glut.glutSolidTeapot(0.3);
+					gl.glTranslated(posCamx, hav + 0.20 , posCamz);
+					gl.glRotated(-90 + rotationCam[1],0,1,0);
+					if (night){
+						float lightDirAvatar[] = {0.5f, 0.5f , 0f, 1f };
+						gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, lightDirAvatar, 0);
+						// Parameters for Torch
+				    	float spotAngle = 45.0f; // Spotlight cone half-angle.
+				    	float spotDirection[] = {0.5f, 0.1f, 0f}; // Spotlight direction.
+				    	float spotExponent = 2.0f; // Spotlight exponent = attenuation factor.
+			        	gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, spotAngle);
+			        	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION, spotDirection,0);    
+			        	gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_EXPONENT, spotExponent);
+					}
+					glut.glutSolidTeapot(0.3);
 				gl.glPopMatrix();
 			}
 			
@@ -211,7 +213,28 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 //		System.out.println("red: " + red + " green: " +green);
 //		System.out.println("angle: " + xAngle);
     }
-	
+	public void setUpLightning(GL2 gl){
+	    gl.glEnable(GL2.GL_LIGHTING);
+	    gl.glEnable(GL2.GL_LIGHT0);
+	    gl.glDisable(GL2.GL_LIGHT1);
+	    gl.glEnable(GL2.GL_NORMALIZE);
+        float lightAmbNight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    	float lightDifAndSpecNight[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    	float globAmbNight[] = {0.15f, 0.15f, 0.15f, 1.0f};
+    	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, lightAmbNight,0);
+    	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, lightDifAndSpecNight,0);
+    	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPECULAR, lightDifAndSpecNight,0);
+		// light for the sun (day)
+        float lightAmb[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+        float lightDifAndSpec[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+//        float globAmb[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+        // Light0 properties.
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, lightAmb,0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightDifAndSpec,0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, lightDifAndSpec,0);
+        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmbNight,0);
+        gl.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, GL2.GL_TRUE); 
+	}
 	public void setUpCamera(GL2 gl){
 		
 		double h = 0;
@@ -260,10 +283,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		GL2 gl = drawable.getGL().getGL2();
 	    gl.glClearColor(0f, 0f, 0f, 1);
 	    gl.glEnable(GL2.GL_DEPTH_TEST);
-	    gl.glEnable(GL2.GL_LIGHTING);
-	    gl.glEnable(GL2.GL_LIGHT0);
-	    gl.glEnable(GL2.GL_NORMALIZE);
-	    
+	    setUpLightning(gl);
 	    myTerrain.loadTextures(gl);
 	}
 	
@@ -328,7 +348,15 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		   		break;
 		    case KeyEvent.VK_M:
 		   		transy++;
-		   		break;		
+		   		break;
+		    case KeyEvent.VK_C:
+		   		if (!night){ 
+		   			night = true;
+		   		}
+		   		else {
+		   			night = false;
+		   		}
+		   		break;	
 			default:
 				break;
 		 }
