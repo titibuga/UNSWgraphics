@@ -29,12 +29,15 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
     int angle = 0;
     int trans = 0;
     int transy = 0;
-    int xAngle = 0;
-    int yAngle = 0;
+    double xAngle = 0;
+    double yAngle = 0;
+    double theta = 0;
     double camSpeed = 0.3;
     double posCamx = 0, posCamz = 0;
     double[] rotationCam;
     boolean firstPerson;
+    float green = 0.2f;
+    float red = 0.2f;
 
     public Game(Terrain terrain) {
     	super("Assignment 2");
@@ -42,8 +45,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
         firstPerson = false;
         
         //Initial cam position 
-        rotationCam = new double[]{0, 0, 0};
-   
+        rotationCam = new double[]{0, 0, 0};   
     }
     
     /** 
@@ -84,6 +86,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	@Override
 	public void display(GLAutoDrawable drawable) {
 		//Basic stuff first
+		updateSun();
 		GL2 gl = drawable.getGL().getGL2();
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT  );
 	    gl.glMatrixMode(GL2.GL_MODELVIEW);
@@ -92,7 +95,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    setUpCamera(gl);
 	    
 	    GLUT glut = new GLUT();
-	    
+	    // Direction of sun with y + 10
 	    float lightDir[] = { myTerrain.getSunlight()[0], myTerrain.getSunlight()[1], myTerrain.getSunlight()[2], 0.0f };
         float lightAmb[] = { 0.2f, 0.2f, 0.2f, 1.0f };
         float lightDifAndSpec[] = { 0.8f, 0.8f, 0.8f, 1.0f };
@@ -113,17 +116,51 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 			gl.glTranslated(trans,transy,0);
 			
 			// Draw Light
-			gl.glPushMatrix();
-		    	gl.glRotated(xAngle, 1.0, 0.0, 0.0);
-		    	gl.glRotated(yAngle, 0.0, 0.0, 1.0);
+	    	float matAmbAndDifSun[] = {red, green, 0.0f, 1.0f};
+	        float matSpecSun[] = { 0.3f, 0.3f, 1f, 1.0f };
+	        float matShineSun[] = { 20.0f };
+	        float emm[] = {0.7f, 0.7f, 0.0f, 1.0f};
+	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifSun,0);
+	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, matSpecSun,0);
+	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShineSun,0);
+	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, emm,0);
+	        gl.glPushMatrix();
+		    	gl.glRotated(xAngle, 1.0, 0.0, 1.0);
 		    	gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightDir, 0);
-		    	// Dark ball
+		    	// Draw Sun
 		    	gl.glTranslatef(lightDir[0], lightDir[1], lightDir[2]);
-		    	gl.glColor3f(0,0,0);
-		    	glut.glutSolidSphere(0.2, 40, 40);
+		    	gl.glRotated(theta, 1, 1, 1);
+		    	double sun_lines = 0.35;
+		    	double stack = 3;
+		    	double sun_rays = 10;
+		    	gl.glPushMatrix();
+			        for (int j = 0; j < stack; j++) { 
+			        	gl.glRotated(180f / stack, 0, 1, 0 );
+			        	gl.glPushMatrix();
+					        for (int i = 0; i < sun_rays; i++) { 
+					        	gl.glRotated(360f / sun_rays, 0, 0, 1 );
+					            gl.glLineWidth(8.0f);
+					        	gl.glBegin(GL2.GL_LINES);
+					          	   gl.glVertex2d(0,0);
+					          	   gl.glVertex2d(sun_lines,0);
+					            gl.glEnd();
+					            gl.glLineWidth(1.0f);
+					        }
+				        gl.glPopMatrix();
+			        }
+		        gl.glPopMatrix();
+		    	glut.glutSolidSphere(0.1, 40, 40);
 			gl.glPopMatrix();
 			
 			//Draw avatar 
+	    	float matAmbAndDifAvatar[] = {1f, 0f, 0.0f, 1.0f};
+	        float matSpecAvatar[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	        float matShineAvatar[] = { 3.0f };
+	        float emmSun[] = {0.0f, 0.0f, 0.0f, 1.0f};
+	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, emmSun,0);
+	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifAvatar,0);
+	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, matSpecAvatar,0);
+	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShineAvatar,0);
 			if(!this.firstPerson)
 			{
 				double hav;
@@ -162,12 +199,23 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    gl.glPopMatrix();
 	}
 	
+    //Update model of sun used in texture
+    private void updateSun() {
+    	if (xAngle >= 360) xAngle = 0;
+		if (xAngle == 0) red = 0.2f;
+		red = red + 1.5f/360f;
+		green = 0.2f;
+    	xAngle = xAngle + 2;
+        theta = theta + 3;
+//		System.out.println("red: " + red + " green: " +green);
+//		System.out.println("angle: " + xAngle);
+    }
+	
 	public void setUpCamera(GL2 gl){
 		
 		double h = 0;
 		double camHeight = 3;
 		double thirdPersDist = 3;
-		Dimension s = myTerrain.size();
 		
 		//Get height from terrain 
 		h = myTerrain.altitude(posCamx, posCamz);
@@ -198,12 +246,6 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 			gl.glTranslated(-posCamx, -(h+0.5), -posCamz);
 		else
 			gl.glTranslated(-posCamx, -(h + camHeight), -(posCamz -thirdPersDist));
-		
-		
-		
-		
-		
-		
 	}
 
 	@Override
@@ -215,7 +257,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	public void init(GLAutoDrawable drawable) {
 		// Temporary
 		GL2 gl = drawable.getGL().getGL2();
-	    gl.glClearColor(1f, 1f, 1f, 1);
+	    gl.glClearColor(0f, 0f, 0f, 1);
 	    gl.glEnable(GL2.GL_DEPTH_TEST);
 	    gl.glEnable(GL2.GL_LIGHTING);
 	    gl.glEnable(GL2.GL_LIGHT0);
@@ -268,36 +310,15 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 				//angle = (angle + 5) % 360;
 		    	 rotationCam[0] =  (rotationCam[0] + 5) % 360;
 				break;	
-		    case KeyEvent.VK_W:
-		   		xAngle = xAngle - 10;
-		   		if (xAngle < 0.0) xAngle += 360.0;
-		   		break;
-		    case KeyEvent.VK_S:
-		   		xAngle = xAngle + 10;
-		   		if (xAngle > 360.0) xAngle -= 360.0;
-		   		break;
-		    case KeyEvent.VK_A:
-		   		yAngle = yAngle - 10;
-		   		if (yAngle < 0.0) yAngle += 360.0;
-		   		break;
-		   		
-		   		
 		    case KeyEvent.VK_P:
 		   		firstPerson = !firstPerson;
 		   		break;
-		   		
 		    case KeyEvent.VK_N:
 		   		transy--;
 		   		break;
-		   		
 		    case KeyEvent.VK_M:
 		   		transy++;
 		   		break;		
-		   		
-		    case KeyEvent.VK_D:
-		   		yAngle = yAngle + 10;
-		   		if (yAngle > 360.0) yAngle -= 360.0;
-		   		break;
 			default:
 				break;
 		 }
