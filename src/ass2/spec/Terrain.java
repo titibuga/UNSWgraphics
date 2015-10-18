@@ -186,6 +186,7 @@ public class Terrain {
         			(p[3][2]*frac1 + p[2][2]*(1-frac1))*frac2;
         return altitude;
     }
+    
 
     /**
      * Add a tree at the specified (x,z) point. 

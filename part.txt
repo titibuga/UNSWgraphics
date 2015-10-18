@@ -1,0 +1,50 @@
+    public void altitude1 (double x, double z) {
+        double altitude = 0;
+        int xInt = (int) x;
+        int zInt = (int) z;
+        int xInt2 = (int) x;
+        int zInt2 = (int) z;
+        
+        if (x - xInt != 0){
+        	xInt2++;
+        }
+        if (z - zInt != 0){
+        	zInt2++;
+        }
+        
+        if(xInt < 0 || zInt < 0 ||
+			       zInt2 >= this.size().height ||
+			       xInt2 >= this.size().width)
+        	altitude = 0;
+        // Find right triangle
+        int result = 0;
+        if (xInt2 != xInt){
+        	result = xInt2 + zInt;
+        }
+        else if (zInt2 != zInt){
+        	result = zInt2 + xInt;
+        }
+        double p[][] = new double[3][3];
+        if (x+z <= result){
+        	p[0][0] = xInt;
+        	p[0][1] = zInt2;
+        	p[0][2] = getGridAltitude(xInt, zInt2);
+        	p[1][0] = xInt2;
+        	p[1][1] = zInt;
+        	p[1][2] = getGridAltitude(xInt2, zInt);
+        	p[2][0] = xInt;
+        	p[2][1] = zInt;
+        	p[2][2] = getGridAltitude(xInt, zInt);
+        }
+        else{
+        	p[0][0] = xInt2;
+        	p[0][1] = zInt;
+        	p[0][2] = getGridAltitude(xInt2, zInt);
+        	p[1][0] = xInt;
+        	p[1][1] = zInt2;
+        	p[1][2] = getGridAltitude(xInt, zInt2);
+        	p[2][0] = xInt2;
+        	p[2][1] = xInt2;
+        	p[2][2] = getGridAltitude(xInt2, zInt2);
+        }
+    }
