@@ -29,6 +29,7 @@ public class Terrain {
     private Dimension mySize;
     private double[][] myAltitude;
     private List<Tree> myTrees;
+    private List<Other> myOthers;
     private List<Road> myRoads;
     private float[] mySunlight;
 	
@@ -49,6 +50,7 @@ public class Terrain {
         mySize = new Dimension(width, depth);
         myAltitude = new double[width][depth];
         myTrees = new ArrayList<Tree>();
+        myOthers = new ArrayList<Other>();
         myRoads = new ArrayList<Road>();
         mySunlight = new float[3];
         
@@ -65,6 +67,11 @@ public class Terrain {
     public List<Tree> trees() {
         return myTrees;
     }
+    
+   public List<Other> others()
+   {
+	   return myOthers;
+   }
 
     public List<Road> roads() {
         return myRoads;
@@ -192,6 +199,14 @@ public class Terrain {
         Tree tree = new Tree(x, y, z);
         myTrees.add(tree);
     }
+    
+    
+    public void addOther(double x, double z)
+    {
+    	double y = altitude(x, z);
+        Other o = new Other(x, y, z);
+        myOthers.add(o);
+    }
 
 
     /**
@@ -222,6 +237,7 @@ public class Terrain {
         //Recursively call the load texture of other objects from the terrain
         for(Tree t : this.myTrees) t.loadTextures(gl);
         for(Road r : this.myRoads) r.loadTextures(gl);
+        for(Other o : this.myOthers) o.loadTextures(gl);
 	}
     
     public void draw(GL2 gl){

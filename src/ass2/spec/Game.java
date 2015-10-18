@@ -176,6 +176,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 				gl.glPopMatrix();
 			}
 			
+			// Draw others
+		    for(Other o : myTerrain.others())
+		    	o.draw(gl);
+			
 			// Draw roads
 			for(Road rd : myTerrain.roads()) {
 				double[] p0 = rd.point(0);
@@ -196,6 +200,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 			    	tree.draw(gl, height_tree, diameter_tree, diameter_leaves);
 		    	gl.glPopMatrix();
 		    }
+		    
+		    
 		    
 		    // Draw terrain
 	        myTerrain.draw(gl);
@@ -350,13 +356,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		   		transy++;
 		   		break;
 		    case KeyEvent.VK_C:
-		   		if (!night){ 
-		   			night = true;
-		   		}
-		   		else {
-		   			night = false;
-		   		}
-		   		break;	
+		   		night = !night;
+		   		break;
+		    case KeyEvent.VK_SPACE:
+		    	for(Other o : myTerrain.others()) o.switchShader();
+		   	
 			default:
 				break;
 		 }
