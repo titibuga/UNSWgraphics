@@ -11,7 +11,7 @@ public class Other {
 	
 	double pos[];
 	private static final String VERTEX_SHADER = "shaders/PhongVertex.glsl";
-    private static final String FRAGMENT_SHADER = "shaders/PhongFragment.glsl";
+    private static final String FRAGMENT_SHADER = "shaders/PhongFragmentSpot.glsl";
     private int shaderprogram;
     private boolean useShaders;
 	

@@ -134,8 +134,30 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 			else {
 				gl.glDisable(GL2.GL_LIGHT0);
 				gl.glEnable(GL2.GL_LIGHT1);
+				gl.glPushMatrix();
+				double hav;
+				hav = myTerrain.altitude(posCamx, posCamz);
+				gl.glTranslated(posCamx, hav + 0.2, posCamz);
+				gl.glRotated(rotationCam[1],0,1,0);
+				//gl.glColor3f(0,1,0);
+	        	//glut.glutSolidTeapot(0.7);
+				gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, new float[]{0.0f,0.0f,0.0f,1.0f}, 0);
+				gl.glEnable(GL2.GL_LIGHT1);
+				// Parameters for Torch
+		    	float spotDirection[] = {0.1f, 0.1f, 1.0f}; // Spotlight direction.
+		    	float spotAngle = 45.0f; // Spotlight cone half-angle.
+	        	float spotExponent = 2.0f; // Spotlight exponent = attenuation factor.
+	        	gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, spotAngle);
+	        	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION, spotDirection,0);	        	   
+	        	gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_EXPONENT, spotExponent);
+	        	
+	        	gl.glPopMatrix();
 
 			}
+		
+			
+			
+			
 			if(!this.firstPerson)
 			{
 				double hav;
@@ -144,19 +166,16 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 					gl.glTranslated(posCamx, hav + 0.20 , posCamz);
 					gl.glRotated(-90 + rotationCam[1],0,1,0);
 					if (night){
-						float lightDirAvatar[] = {0.3f, 0.3f , 0f, 1f };
-						gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, lightDirAvatar, 0);
-						// Parameters for Torch
-				    	float spotAngle = 45.0f; // Spotlight cone half-angle.
-				    	float spotDirection[] = {0.5f, 0.0f, 0f}; // Spotlight direction.
-				    	float spotExponent = 2.0f; // Spotlight exponent = attenuation factor.
-			        	gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, spotAngle);
-			        	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION, spotDirection,0);    
-			        	gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_EXPONENT, spotExponent);
+						
 			    		int slices = 20;
 			    		float diameter_cone = 0.03f;
 			    		float height_cone = 0.3f;
 			    		double diameter_fire = 0.05;
+			    		
+			    		float lightDirAvatar[] = {0.3f, 0.3f , 0f, 1f };
+						//gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, lightDirAvatar, 0);
+						
+						
 			        	drawTorch(gl, lightDirAvatar, slices, diameter_cone, height_cone, diameter_fire);
 					}
 					//Draw avatar 
@@ -358,8 +377,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
     
 	public void setUpLightning(GL2 gl){
 	    gl.glEnable(GL2.GL_LIGHTING);
-	    gl.glEnable(GL2.GL_LIGHT0);
-	    gl.glDisable(GL2.GL_LIGHT1);
+	  
 	    gl.glEnable(GL2.GL_NORMALIZE);
 	    // low ambient light for the night
         float lightAmbNight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -368,14 +386,31 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
     	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, lightAmbNight,0);
     	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, lightDifAndSpecNight,0);
     	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPECULAR, lightDifAndSpecNight,0);
+    	//Spotlight parameters
+    	float lightDirAvatar[] = {0.3f, 0.3f , 0f, 1f };
+		gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, lightDirAvatar, 0);
+		// Parameters for Torch
+    	float spotAngle = 45.0f; // Spotlight cone half-angle.
+    	float spotDirection[] = {0.0f, 0.0f, 1f}; // Spotlight direction.
+    	float spotExponent = 2.0f; // Spotlight exponent = attenuation factor.
+    	gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, spotAngle);
+    	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION, spotDirection,0);    
+    	gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_EXPONENT, spotExponent);
+    	
+    	
 		// light for the sun (day)
         float lightAmb[] = { 0.2f, 0.2f, 0.2f, 1.0f };
         float lightDifAndSpec[] = { 0.8f, 0.8f, 0.8f, 1.0f };
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, lightAmb,0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightDifAndSpec,0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, lightDifAndSpec,0);
+        
+        gl.glEnable(GL2.GL_LIGHT0);
+	    gl.glEnable(GL2.GL_LIGHT1);
+        
         gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmbNight,0);
         gl.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, GL2.GL_TRUE);
+        gl.glDisable(GL2.GL_LIGHT1);
 	}
 	public void setUpCamera(GL2 gl){
 		
@@ -445,7 +480,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	  //  gl.glOrtho(-window, window, -window, window, 0.1, 10);
 	    GLU glu = new GLU();
 	  //  gl.glFrustum(-window, window, -window, window, 0.5, 10);
-	    glu.gluPerspective(60, ar, distNear, 10);
+	    glu.gluPerspective(60, ar, distNear, 100);
 //	    System.out.println(distNear);
 	}
 	
@@ -486,12 +521,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		   		setSize(d.height, d.width);
 		   		System.out.println("Hue");
 		   		break;
-		    case KeyEvent.VK_N:
-		   		transy--;
-		   		break;
-		    case KeyEvent.VK_M:
-		   		transy++;
-		   		break;
+		
 		    case KeyEvent.VK_C:
 				if (!night) night = true;
 				else (night) = false;
