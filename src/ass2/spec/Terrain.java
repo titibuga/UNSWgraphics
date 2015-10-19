@@ -254,7 +254,7 @@ public class Terrain {
     	float matAmbAndDifTerrain[] = {0.55f, 0.65f, 0.31f, 1.0f};
         float matSpecTerrain[] = { 0.1f, 0.1f, 0.1f, 1.0f };
         float matShineTerrain[] = { 3.0f };
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifTerrain,0);
+        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifTerrain,0);
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, matSpecTerrain,0);
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShineTerrain,0);
 	    // Draw terrain

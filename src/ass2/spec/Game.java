@@ -29,22 +29,27 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
     int angle = 0;
     int trans = 0;
     int transy = 0;
-    double xAngle = 0;
+    double angleSun = 0;
     double yAngle = 0;
     double theta = 0;
     double camSpeed = 0.3;
     double posCamx = 0, posCamz = 0;
     double[] rotationCam;
     boolean firstPerson;
-    float green = 0.2f;
-    float red = 0.2f;
-    boolean night = false;
+    float green;
+    float red;
+    boolean night;
+    boolean rotateSun;
+    int openMouth;
 
     public Game(Terrain terrain) {
     	super("Assignment 2");
         myTerrain = terrain;
         firstPerson = false;
-        
+        night = false;
+        rotateSun = false;
+        green = 0.2f;
+        red = 0.1f;
         //Initial cam position 
         rotationCam = new double[]{0, 0, 0};   
     }
@@ -88,7 +93,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	@Override
 	public void display(GLAutoDrawable drawable) {
 		//Basic stuff first
-		if (!night) updateSun();
+		if (!night && rotateSun) updateSun();
 		GL2 gl = drawable.getGL().getGL2();
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT  );
 	    gl.glMatrixMode(GL2.GL_MODELVIEW);
@@ -104,12 +109,22 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 				gl.glEnable(GL2.GL_LIGHT0);
 				gl.glDisable(GL2.GL_LIGHT1);
 		        gl.glPushMatrix();
-			    	gl.glRotated(xAngle, 1.0, 0.0, 1.0);
-			    	float lightDir[] = { myTerrain.getSunlight()[0], myTerrain.getSunlight()[1], myTerrain.getSunlight()[2], 0.0f };
-			    	gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightDir, 0);
-			    	// Draw Sun
-			    	gl.glTranslatef(lightDir[0], lightDir[1], lightDir[2]);
-			    	gl.glRotated(theta, 0, 1, 0);
+		        	float lightDir[] = { myTerrain.getSunlight()[0], myTerrain.getSunlight()[1], myTerrain.getSunlight()[2], 0.0f };
+		        	if (rotateSun) {
+		        		lightDir[0] = -3;
+		        		lightDir[1] = 0;
+		        		lightDir[2] = 0;
+		        		gl.glRotated(angleSun, 0.0, 1.0, -1.0);
+		        	}
+		        	else {
+		        	    green = 0.2f;
+		        	    red = 0.2f;
+		        	    angleSun = 0;
+		        	}
+			    	// Draw Sun		        	    
+		        	gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightDir, 0);
+	        	    gl.glTranslatef(lightDir[0], lightDir[1], lightDir[2]);
+			    	if (rotateSun) gl.glRotated(theta, 0, 1, 0);
 			    	double sun_lines_length = 0.35;
 			    	double stack = 3;
 			    	double sun_rays = 10;
@@ -145,15 +160,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 			        	drawTorch(gl, lightDirAvatar, slices, diameter_cone, height_cone, diameter_fire);
 					}
 					//Draw avatar 
-			    	float matAmbAndDifAvatar[] = {1f, 0f, 0.0f, 1.0f};
-			        float matSpecAvatar[] = { 0.1f, 0.1f, 0.1f, 1.0f };
-			        float matShineAvatar[] = { 3.0f };
-			        float emmSun[] = {0.0f, 0.0f, 0.0f, 1.0f};
-			        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, emmSun,0);
-			        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifAvatar,0);
-			        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, matSpecAvatar,0);
-			        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShineAvatar,0);
-					glut.glutSolidTeapot(0.3);
+					gl.glPushMatrix();
+						gl.glRotated(90, 0, 1, 0);
+//						gl.glRotated(180, 0, 0, 1);
+						drawAvatar(gl);
+					gl.glPopMatrix();
 				gl.glPopMatrix();
 			}
 			
@@ -185,6 +196,87 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	        myTerrain.draw(gl);
 	    gl.glPopMatrix();
 	}
+	public void drawAvatar(GL2 gl) {
+    	float matAmbAndDifAvatar[] = {0.7f, 0.7f, 0.0f, 1.0f};
+        float matSpecAvatar[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+        float matShineAvatar[] = { 20.0f };
+        float emmSun[] = {0.0f, 0.0f, 0.0f, 1.0f};
+        float matAmbAndDifAvatarBack[] = {0.5f, 0.0f, 0.0f, 1.0f};
+        float matSpecAvatarBack[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+        float matShineAvatarBack[] = { 0.0f };
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, emmSun,0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifAvatar,0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, matSpecAvatar,0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShineAvatar,0);
+        gl.glMaterialfv(GL2.GL_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifAvatarBack,0);
+        gl.glMaterialfv(GL2.GL_BACK, GL2.GL_SPECULAR, matSpecAvatarBack,0);
+        gl.glMaterialfv(GL2.GL_BACK, GL2.GL_SHININESS, matShineAvatarBack,0);
+        gl.glPushMatrix();
+			// Above terrain
+			gl.glTranslated(0, 0.3, 0);
+	        uvSphere(gl, 0.3, 20, 20, openMouth);
+	    gl.glPopMatrix();
+	}
+	
+	public static void uvSphere(GL2 gl, double radius, int slices, int stacks, int openMouth) {
+		gl.glLightModeli(GL2.GL_LIGHT_MODEL_TWO_SIDE, GL2.GL_TRUE);
+		if (radius <= 0)
+			throw new IllegalArgumentException("Radius must be positive.");
+		if (slices < 3)
+			throw new IllegalArgumentException("Number of slices must be at least 3.");
+		if (stacks < 2)
+			throw new IllegalArgumentException("Number of stacks must be at least 2.");
+		for (int j = 0; j < stacks; j++) {
+			double latitude1 = (Math.PI/stacks) * j - Math.PI/2;
+			double latitude2 = (Math.PI/stacks) * (j+1) - Math.PI/2;
+			double sinLat1 = Math.sin(latitude1);
+			double cosLat1 = Math.cos(latitude1);
+			double sinLat2 = Math.sin(latitude2);
+			double cosLat2 = Math.cos(latitude2);
+			gl.glBegin(GL2.GL_QUAD_STRIP);
+			for (int i = openMouth; i <= slices; i++) {
+				double longitude = (2*Math.PI/slices) * i;
+				double sinLong = Math.sin(longitude);
+				double cosLong = Math.cos(longitude);
+				double x1 = cosLong * cosLat1;
+				double y1 = sinLong * cosLat1;
+				double z1 = sinLat1;
+				double x2 = cosLong * cosLat2;
+				double y2 = sinLong * cosLat2;
+				double z2 = sinLat2;
+				gl.glNormal3d(x2,y2,z2);
+				gl.glVertex3d(radius*x2,radius*y2,radius*z2);
+				gl.glNormal3d(x1,y1,z1);
+				gl.glVertex3d(radius*x1,radius*y1,radius*z1);
+			}
+			gl.glEnd();
+		}
+		gl.glLightModeli(GL2.GL_LIGHT_MODEL_TWO_SIDE, GL2.GL_FALSE);
+		// First Eye
+		gl.glPushMatrix();
+			gl.glTranslated(0.0,0.2,-0.27);
+			float matAmbAndDifAvatarEyes[] = {0.0f, 0.0f, 0.0f, 1.0f};
+			radius = 0.05;
+			gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifAvatarEyes,0);
+		 	gl.glBegin(GL2.GL_POLYGON);
+		 		for (int d = 0; d < 32; d++) {
+		 			double angle = 2*Math.PI/32 * d;
+		 			gl.glVertex2d( radius*Math.cos(angle), radius*Math.sin(angle));
+		 		}
+		 	gl.glEnd();
+	 	gl.glPopMatrix();
+	 	// Second Eye
+		gl.glPushMatrix();
+			gl.glTranslated(0.0,0.2,0.27);
+			radius = 0.05;
+			gl.glBegin(GL2.GL_POLYGON);
+		 		for (int d = 0; d < 32; d++) {
+		 			double angle = 2*Math.PI/32 * d;
+		 			gl.glVertex2d( radius*Math.cos(angle), radius*Math.sin(angle));
+		 		}
+		 	gl.glEnd();
+		gl.glPopMatrix();
+	} 
 	
 	public void drawTorch(GL2 gl, float[] lightDirAvatar, int slices, float diameter_cone, float height_cone, double diameter_fire){
     	gl.glPushMatrix();
@@ -254,15 +346,16 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	}
     //Update model of sun used in texture
     private void updateSun() {
-    	if (xAngle >= 360) xAngle = 0;
-		if (xAngle == 0) red = 0.2f;
+    	if (angleSun >= 360) angleSun = 0;
+		if (angleSun == 0) red = 0.1f;
 		red = red + 1.5f/360f;
-		green = 0.2f;
-    	xAngle = xAngle + 2;
+		green = 0.1f;
+		angleSun = angleSun + 2;
         theta = theta + 3;
 //		System.out.println("red: " + red + " green: " +green);
-//		System.out.println("angle: " + xAngle);
+//		System.out.println("angle: " + angleSun);
     }
+    
 	public void setUpLightning(GL2 gl){
 	    gl.glEnable(GL2.GL_LIGHTING);
 	    gl.glEnable(GL2.GL_LIGHT0);
@@ -282,7 +375,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightDifAndSpec,0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, lightDifAndSpec,0);
         gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmbNight,0);
-        gl.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, GL2.GL_TRUE); 
+        gl.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, GL2.GL_TRUE);
 	}
 	public void setUpCamera(GL2 gl){
 		
@@ -364,11 +457,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 			case KeyEvent.VK_J:
 				direction = -1;
 			case KeyEvent.VK_U:
+				if (openMouth == 3) openMouth = 0;
+				else openMouth = 3;
 				double rads = Math.toRadians(rotationCam[1]);
 				posCamz+= direction*Math.cos(rads)*camSpeed;
-				posCamx+= direction*Math.sin(rads)*camSpeed;	
+				posCamx+= direction*Math.sin(rads)*camSpeed;
 				break;
-				
 			case KeyEvent.VK_LEFT:
 				rotationCam[1] = (rotationCam[1] + 5)%360;
 				break;
@@ -404,13 +498,17 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		   		break;
 		    case KeyEvent.VK_SPACE:
 		    	for(Other o : myTerrain.others()) o.switchShader();
-		   		break;	
+		   		break;
+		    case KeyEvent.VK_Z:
+				if (!rotateSun) rotateSun = true;
+				else (rotateSun) = false;
+		   		break;
 			default:
 				break;
 		 }
 	}
 	
-
+	
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
