@@ -148,15 +148,14 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		    	float spotAngle = 45.0f; // Spotlight cone half-angle.
 	        	float spotExponent = 2.0f; // Spotlight exponent = attenuation factor.
 	        	gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, spotAngle);
-	        	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION, spotDirection,0);	        	   
+	        	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION, spotDirection, 0);	        	   
 	        	gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_EXPONENT, spotExponent);
 	        	
 	        	gl.glPopMatrix();
+	        	
 
 			}
 		
-			
-			
 			
 			if(!this.firstPerson)
 			{
@@ -519,12 +518,14 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		   		Dimension d = getSize();
 		   		setSize(d.height/2, d.width/2);
 		   		setSize(d.height, d.width);
-		   		System.out.println("Hue");
 		   		break;
 		
 		    case KeyEvent.VK_C:
 				if (!night) night = true;
 				else (night) = false;
+				
+				for(Other o : myTerrain.others())
+					o.setNight(night);
 		   		break;
 		    case KeyEvent.VK_SPACE:
 		    	for(Other o : myTerrain.others()) o.switchShader();

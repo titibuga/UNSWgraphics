@@ -11,27 +11,40 @@ public class Other {
 	
 	double pos[];
 	private static final String VERTEX_SHADER = "shaders/PhongVertex.glsl";
-    private static final String FRAGMENT_SHADER = "shaders/PhongFragmentSpot.glsl";
+    private static final String FRAGMENT_SHADER_DAY = "shaders/PhongFragDir.glsl";
+    private static final String FRAGMENT_SHADER_NIGHT = "shaders/PhongFragmentSpot.glsl";
     private int shaderprogram;
+    private int[] shaders;
     private boolean useShaders;
 	
 	public Other(double x, double y, double z)
 	{
 		pos = new double[]{x,y,z};
-		useShaders = false;
+		useShaders = true;
+	}
+	
+	
+	public void setNight(boolean b)
+	{
+		if(b) shaderprogram = shaders[1];
+		else shaderprogram = shaders[0];
 	}
 	
 	public void loadTextures(GL2 gl)
 	{
+		shaders = new int[2];
 		 try 
 		 {
-			 shaderprogram = Shader.initShaders(gl,VERTEX_SHADER,FRAGMENT_SHADER);   		 
+			 shaders[0] = Shader.initShaders(gl,VERTEX_SHADER,FRAGMENT_SHADER_DAY);   	
+			 shaders[1] = Shader.initShaders(gl,VERTEX_SHADER,FRAGMENT_SHADER_NIGHT); 
 	     }
 		 catch (Exception e) {
 			 System.err.println("Error while loadn shader");
 			 e.printStackTrace();
 	         System.exit(1);
 		 }
+		 
+		 shaderprogram = shaders[0];
 	}
 	
 	public void switchShader()
@@ -58,8 +71,7 @@ public class Other {
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, matSpecAvatar,0);
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShineAvatar,0);
 		
-		glut.glutSolidTeapot(0.3);
-		
+		glut.glutSolidTeapot(0.5f);	
 		
 		gl.glPopMatrix();
 		if(useShaders) gl.glUseProgram(0);

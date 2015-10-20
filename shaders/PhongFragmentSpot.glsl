@@ -7,7 +7,7 @@ in vec4 v;
 
 /* We are only taking into consideration light0 and assuming it is a point light */
 void main (void) {	
-   vec4 ambient, globalAmbient;
+  vec4 ambient, globalAmbient, color;
     
     /* Compute the ambient and globalAmbient terms */
    ambient =  gl_LightSource[1].ambient * gl_FrontMaterial.ambient;
@@ -15,7 +15,7 @@ void main (void) {
 
 
    /* Color is global ambient, at least */
-   vec4 color = globalAmbient + gl_FrontMaterial.emission;
+   color = globalAmbient + gl_FrontMaterial.emission;
    
 	
    /* Diffuse calculations */
@@ -56,9 +56,9 @@ void main (void) {
 		 /* Compute the diffuse term */
     		  diffuse = NdotL * gl_FrontMaterial.diffuse * gl_LightSource[1].diffuse;
 
-		  spotEffect = dot(normalize(vec3(gl_LightSource[1].spotDirection)), normalize(-lightDir));
-		  if (spotEffect > gl_LightSource[1].spotCosCutoff) {
-		    spotEffect = pow(spotEffect, gl_LightSource[1].spotExponent);
+		  spotEffect = max(0.0,dot(normalize(-lightDir), normalize(gl_LightSource[1].spotDirection)));
+		  if (spotEffect > cos(radians(gl_LightSource[1].spotCutoff))) {
+		    spotEffect = pow(spotEffect,  gl_LightSource[1].spotExponent);
 		    att = spotEffect / (gl_LightSource[1].constantAttenuation +
 					gl_LightSource[1].linearAttenuation * dist +
 					gl_LightSource[1].quadraticAttenuation * dist * dist);
@@ -71,15 +71,13 @@ void main (void) {
 		    specular = gl_FrontMaterial.specular * gl_LightSource[1].specular * pow(NdotHV,gl_FrontMaterial.shininess);
 		    specular = clamp(specular,0,1);
 
-		    color += att * (diffuse + ambient) * specular;
-		    /* color = vec4(1.0,0.0,0.0,1.0);*/
+		    color += att * (diffuse + specular);
+		    /*color = vec4(0.0,1.0,0.0,1.0);*/
 		  }
-		  else
-		    {
-		      color = vec4(gl_LightSource[1].spotDirection.x,gl_LightSource[1].spotDirection.y,gl_LightSource[1].spotDirection.z,1.0);
-		    }
+		 
 	    
 	}
+	
 	
 	
 
