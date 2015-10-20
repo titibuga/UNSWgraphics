@@ -1,9 +1,9 @@
-#version 130
+#version 120
 
 
 
-in vec3 N;
-in vec4 v;
+varying vec3 N;
+varying vec4 v;
 
 /* We are only taking into consideration light0 and assuming it is a point light */
 void main (void) {	
