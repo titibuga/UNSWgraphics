@@ -242,7 +242,7 @@ public class Road {
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, emm,0);
         
         
-    	gl.glActiveTexture(GL2.GL_TEXTURE0); 	
+//    	gl.glActiveTexture(GL2.GL_TEXTURE0); 	
     	gl.glEnable(GL2.GL_TEXTURE_2D);
     	gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[0].getTextureId());
     	

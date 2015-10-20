@@ -1,7 +1,7 @@
-#version 130
+#version 120
 
-out vec3 N; 
-out vec4 v; 
+varying vec3 N; 
+varying vec4 v; 
 
 
 void main (void) {	
