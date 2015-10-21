@@ -252,9 +252,12 @@ public class Terrain {
 	    double[] v2 = new double[3];
     	// Materials and Color of terrain
     	float matAmbAndDifTerrain[] = {0.55f, 0.65f, 0.31f, 1.0f};
+    	float matAmbAndDifTerrainBack[] = {0.0f, 0.0f, 0.0f, 1.0f};
         float matSpecTerrain[] = { 0.1f, 0.1f, 0.1f, 1.0f };
         float matShineTerrain[] = { 3.0f };
-        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifTerrain,0);
+        gl.glLightModeli(GL2.GL_LIGHT_MODEL_TWO_SIDE, GL2.GL_TRUE);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifTerrain,0);
+        gl.glMaterialfv(GL2.GL_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifTerrainBack,0);
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, matSpecTerrain,0);
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShineTerrain,0);
 	    // Draw terrain
@@ -275,12 +278,12 @@ public class Terrain {
 		    		double[] n1 = crossProduct(v1,v2);
 		    		
 		    		gl.glNormal3d(n1[0], n1[1], n1[2]);
-		    		gl.glTexCoord2d(0, 0); 
-		    		gl.glVertex3d(i+1,h[2],j); // P2
-		    		gl.glTexCoord2d(1, 1); 
-		    		gl.glVertex3d(i,h[1],j+1);// P1
 		    		gl.glTexCoord2d(1, 0); 
 			    	gl.glVertex3d(i,h[0],j); // P0
+		    		gl.glTexCoord2d(1, 1); 
+		    		gl.glVertex3d(i,h[1],j+1);// P1
+		    		gl.glTexCoord2d(0, 0); 
+		    		gl.glVertex3d(i+1,h[2],j); // P2
 			    	
 			    	v2[0] = 1;
 		    		v2[2] = 0;
@@ -288,17 +291,19 @@ public class Terrain {
 		    		n1 = crossProduct(v2,v1);
 		    		gl.glNormal3d(n1[0], n1[1], n1[2]);
 		    		
-		    		gl.glTexCoord2d(0, 0); 
-		    		gl.glVertex3d(i+1,h[2],j); // P2
-		    		gl.glTexCoord2d(0, 1); 
-		    		gl.glVertex3d(i+1,h[3],j+1); // P3
 		    		gl.glTexCoord2d(1, 1); 
 			    	gl.glVertex3d(i,h[1],j+1);// P1
+		    		gl.glTexCoord2d(0, 1); 
+		    		gl.glVertex3d(i+1,h[3],j+1); // P3
+		    		gl.glTexCoord2d(0, 0); 
+		    		gl.glVertex3d(i+1,h[2],j); // P2
+
+
 		    	gl.glEnd();
 	    	}
 	    }
 	    gl.glDisable(GL2.GL_TEXTURE_2D);
-    	
+	    gl.glLightModeli(GL2.GL_LIGHT_MODEL_TWO_SIDE, GL2.GL_FALSE);
 	    // Draw grid of terrain
 	    gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_LINE);
     	float matAmbAndDifTerrainG[] = {0.0f, 0.0f, 0.0f, 1.0f};
