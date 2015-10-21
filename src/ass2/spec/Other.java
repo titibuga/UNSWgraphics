@@ -215,7 +215,7 @@ public class Other {
 	        
 	  	   gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0); //last num is the offset
 	  	   gl.glNormalPointer(GL.GL_FLOAT, 0, (long)positions.length*Float.SIZE);
-	  	   gl.glTexCoordPointer(3,GL.GL_FLOAT, 0, (long)positions.length*Float.SIZE + normals.length*Float.SIZE);
+	  	   gl.glTexCoordPointer(2,GL.GL_FLOAT, 0, (long)positions.length*Float.SIZE + normals.length*Float.SIZE);
 		
 		gl.glActiveTexture(GL2.GL_TEXTURE0); 	
     	gl.glEnable(GL2.GL_TEXTURE_2D);
