@@ -1,9 +1,12 @@
 package ass2.spec;
 
+import java.nio.FloatBuffer;
+
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.glu.GLU;
 
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 import ass2.spec.Shader;
@@ -17,6 +20,90 @@ public class Other {
     private int shaderprogram;
     private int[] shaders;
     private boolean useShaders;
+    private int[] bufferIds; //VBO
+    
+    
+    
+    
+    
+    private float[] normals = 
+    	{
+    		//F1
+    		0,0,-1,0,0,-1,0,0,-1,0,0,-1,0,0,-1,0,0,-1,
+    		//F2
+    		0,0,1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1,
+    		//F3
+    		-1,0,0,-1,0,0,-1,0,0,-1,0,0,-1,0,0,-1,0,0,
+    		//F4
+    		1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,
+    		//F5
+    		0,-1,0,0,-1,0,0,-1,0,0,-1,0,0,-1,0,0,-1,0,
+    		///F6
+    		0,1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1,0,
+    	};
+    
+    
+    private float[] positions = 
+    	{
+
+    		//F1
+    		0,0,0, 0,1,0, 1,1,0, 
+    		0,0,0, 1,1,0, 1,0,0,
+
+    		//F2
+    		1,0,1, 1,1,1, 0,1,1,
+    		1,0,1, 0,1,1, 0,0,1,
+
+    		//F3
+
+    		0,0,1, 0,1,1, 0,1,0,
+    		0,0,1, 0,1,0, 0,0,0,
+
+    		//F4
+
+    		1,0,0, 1,1,0, 1,1,1,
+    		1,0,0, 1,1,1, 1,0,1, 
+
+    		//F5
+
+    		0,0,1, 0,0,0, 1,0,0,
+    		0,0,1, 1,0,0, 1,0,1,
+
+    		//F6
+
+    		0,1,0, 0,1,1, 1,1,1,
+    		0,1,0, 1,1,1, 1,1,0,
+    		
+    	};
+    
+    
+    private float texCoords[] =  
+		{	
+    		0,0, 1,0, 1,1, 
+    		0,0,1,1,0,1,
+    		
+    		0,0, 1,0, 1,1, 
+    		0,0,1,1,0,1,
+    		
+    		0,0, 1,0, 1,1, 
+    		0,0,1,1,0,1,
+    		
+    		0,0, 1,0, 1,1, 
+    		0,0,1,1,0,1,
+    		
+    		0,0, 1,0, 1,1, 
+    		0,0,1,1,0,1,
+    		
+    		0,0, 1,0, 1,1, 
+    		0,0,1,1,0,1,
+
+		};
+    
+    
+  //These are not vertex buffer objects, they are just java containers
+  	private FloatBuffer  posData= Buffers.newDirectFloatBuffer(positions);
+  	private FloatBuffer normalData = Buffers.newDirectFloatBuffer(normals);
+  	private FloatBuffer texData = Buffers.newDirectFloatBuffer(texCoords);
     
     //Texture file information
   	private String TEX_0 = "src/ass2/spec/monster_texture.jpg";
@@ -38,8 +125,47 @@ public class Other {
 		else shaderprogram = shaders[0];
 	}
 	
+	private void setUpvbo(GL2 gl)
+	{
+		bufferIds = new int[1];
+		
+		//Generate 1 VBO buffer and get its ID
+        gl.glGenBuffers(1,bufferIds,0);
+       
+   	 //This buffer is now the current array buffer
+        //array buffers hold vertex attribute data
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER,bufferIds[0]);
+     
+        //This is just setting aside enough empty space
+        //for all our data
+        gl.glBufferData(GL2.GL_ARRAY_BUFFER,    //Type of buffer  
+       	        positions.length * Float.SIZE +  normals.length* Float.SIZE + texCoords.length* Float.SIZE, //size needed
+       	        null,    //We are not actually loading data here yet
+       	        GL2.GL_STATIC_DRAW); //We expect once we load this data we will not modify it
+
+
+        //Actually load the positions data
+        gl.glBufferSubData(GL2.GL_ARRAY_BUFFER, 0, //From byte offset 0
+       		 positions.length*Float.SIZE,posData);
+
+        //Actually load the normal data
+        gl.glBufferSubData(GL2.GL_ARRAY_BUFFER,
+       		 positions.length*Float.SIZE,  //Load after the position data
+       		 normals.length*Float.SIZE,normalData);
+        
+        //Actually load the texcoord data
+        gl.glBufferSubData(GL2.GL_ARRAY_BUFFER,
+       		 positions.length*Float.SIZE+normals.length*Float.SIZE,  //Load after the position data
+       		 texCoords.length*Float.SIZE,texData);
+        
+      
+  	   
+	}
+	
+	
 	public void loadTextures(GL2 gl)
 	{
+		setUpvbo(gl);
 		shaders = new int[2];
 		 try 
 		 {
@@ -47,7 +173,7 @@ public class Other {
 			 shaders[1] = Shader.initShaders(gl,VERTEX_SHADER,FRAGMENT_SHADER_NIGHT); 
 	     }
 		 catch (Exception e) {
-			 System.err.println("Error while loadn shader");
+			 System.err.println("Error while loading  shader");
 			 e.printStackTrace();
 	         System.exit(1);
 		 }
@@ -73,10 +199,28 @@ public class Other {
 		gl.glTranslated(pos[0], pos[1], pos[2]);
 		GLUT glut = new GLUT();
 		
+		gl.glBindBuffer(GL.GL_ARRAY_BUFFER,bufferIds[0]);
+		
+		/*int vertexPosLoc = gl.glGetAttribLocation(shaderprogram,"vpos");
+		int vertexNLoc = gl.glGetAttribLocation(shaderprogram,"vNormal");
+		gl.glEnableVertexAttribArray(vertexPosLoc);	
+		gl.glVertexAttribPointer(vertexPosLoc,3, GL.GL_FLOAT, false,0, 0); //last num is the offset
+		gl.glVertexAttribPointer(vertexNLoc,3, GL.GL_FLOAT, false,0, positions.length); */	
+		
+		  gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
+	        gl.glEnableClientState(GL2.GL_NORMAL_ARRAY);
+	        gl.glEnableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
+	        
+	        // Specify locations for the co-ordinates and color arrays.
+	        
+	  	   gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0); //last num is the offset
+	  	   gl.glNormalPointer(GL.GL_FLOAT, 0, (long)positions.length*Float.SIZE);
+	  	   gl.glTexCoordPointer(3,GL.GL_FLOAT, 0, (long)positions.length*Float.SIZE + normals.length*Float.SIZE);
+		
 		gl.glActiveTexture(GL2.GL_TEXTURE0); 	
     	gl.glEnable(GL2.GL_TEXTURE_2D);
     	gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[0].getTextureId());  
-		
+	
 		
 		//Material properties
 		float matAmbAndDifAvatar[] = {1f, 0f, 0.0f, 1.0f};
@@ -91,7 +235,7 @@ public class Other {
 		//glut.glutSolidTeapot(0.5f);	
         
         //gl.glScaled(0.5, 0.5, 0);
-        
+        /*
         for(int i = 0; i < 4; i++)
         {
         	
@@ -100,8 +244,12 @@ public class Other {
         	gl.glRotated(90, 0, 1, 0);
         	gl.glTranslated(-1,0,0);
 
-        }
+        }*/
+        gl.glDrawArrays(GL2.GL_TRIANGLES,0,positions.length/3);
         
+        gl.glDisableClientState(GL2.GL_VERTEX_ARRAY);
+        gl.glDisableClientState(GL2.GL_NORMAL_ARRAY);
+        gl.glDisableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
         
        
         
