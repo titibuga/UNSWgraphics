@@ -231,9 +231,9 @@ public class Road {
     	double i = 0;
 //    	gl.glColor3f(0,0,0);
     	
-        float matAmbAndDif[] = {0.5f, 0.5f, 0.5f, 1.0f};
-        float matSpec[] = { 0.4f, 0.4f, 0.4f, 0.2f };
-        float matShine[] = { 0.0f };
+        float matAmbAndDif[] = {0.6f, 0.6f, 0.6f, 1.0f};
+        float matSpec[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+        float matShine[] = { 10.0f };
         float emm[] = {0.0f, 0.0f, 0.0f, 1.0f};
         // Material properties of sphere.
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDif,0);
@@ -286,8 +286,7 @@ public class Road {
     	
     	gl.glEnd();
     	
-    	
     }
-
+    
 
 }
