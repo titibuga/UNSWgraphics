@@ -1,5 +1,6 @@
 package ass2.spec;
 
+import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.glu.GLU;
 
@@ -16,6 +17,13 @@ public class Other {
     private int shaderprogram;
     private int[] shaders;
     private boolean useShaders;
+    
+    //Texture file information
+  	private String TEX_0 = "src/ass2/spec/monster_texture.jpg";
+  	private String TEX_F_0 = ".jpg";
+  	
+  	//Texture data
+  	private MyTexture myTextures[] = new MyTexture[1];
 	
 	public Other(double x, double y, double z)
 	{
@@ -43,8 +51,13 @@ public class Other {
 			 e.printStackTrace();
 	         System.exit(1);
 		 }
+		 int texUnitLoc = gl.glGetUniformLocation(shaders[0],"texUnit1");
+		 gl.glUniform1i(texUnitLoc, 0);
+		 texUnitLoc = gl.glGetUniformLocation(shaders[1],"texUnit1");
+		 gl.glUniform1i(texUnitLoc, 0);
 		 
 		 shaderprogram = shaders[0];
+		 myTextures[0] = new MyTexture(gl,TEX_0,TEX_F_0,true);
 	}
 	
 	public void switchShader()
@@ -57,8 +70,12 @@ public class Other {
 	{
 		if(useShaders) gl.glUseProgram(shaderprogram);
 		gl.glPushMatrix();
-		gl.glTranslated(pos[0], pos[1] + 0.2, pos[2]);
+		gl.glTranslated(pos[0], pos[1], pos[2]);
 		GLUT glut = new GLUT();
+		
+		gl.glActiveTexture(GL2.GL_TEXTURE0); 	
+    	gl.glEnable(GL2.GL_TEXTURE_2D);
+    	gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[0].getTextureId());  
 		
 		
 		//Material properties
@@ -71,10 +88,49 @@ public class Other {
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, matSpecAvatar,0);
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShineAvatar,0);
 		
-		glut.glutSolidTeapot(0.5f);	
+		//glut.glutSolidTeapot(0.5f);	
+        
+        //gl.glScaled(0.5, 0.5, 0);
+        
+        for(int i = 0; i < 4; i++)
+        {
+        	
+        	drawOneFace(gl);
+        	
+        	gl.glRotated(90, 0, 1, 0);
+        	gl.glTranslated(-1,0,0);
+
+        }
+        
+        
+       
+        
+        
 		
 		gl.glPopMatrix();
 		if(useShaders) gl.glUseProgram(0);
+	}
+	
+	private void drawOneFace(GL2 gl)
+	{
+		gl.glBegin(GL.GL_TRIANGLES);
+		gl.glNormal3d(0, 0, -1);
+		//Triangles
+		gl.glTexCoord2d(0, 0); 
+		gl.glVertex3d(0, 0, 0);
+		gl.glTexCoord2d(0, 1); 
+		gl.glVertex3d(0, 1, 0);
+		gl.glTexCoord2d(1, 1); 
+		gl.glVertex3d(1,1,0);
+		
+		gl.glTexCoord2d(0, 0); 
+		gl.glVertex3d(0, 0, 0);
+		gl.glTexCoord2d(1, 1); 
+		gl.glVertex3d(1, 1, 0);
+		gl.glTexCoord2d(1, 0); 
+		gl.glVertex3d(1,0,0);
+		gl.glEnd();
+		
 	}
 
 }

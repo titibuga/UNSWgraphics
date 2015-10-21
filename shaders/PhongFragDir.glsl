@@ -4,6 +4,8 @@
 
 varying vec3 N;
 varying vec4 v;
+uniform sampler2D texUnit1;
+varying vec2 texCoordV;
 
 /* We are only taking into consideration light0 and assuming it is a point light */
 void main (void) {	
@@ -52,11 +54,11 @@ void main (void) {
     specular = gl_FrontMaterial.specular * gl_LightSource[0].specular * pow(NdotHV,gl_FrontMaterial.shininess);
 	    
   }
-	
+  
   specular = clamp(specular,0,1);
-  color+= 
+   
 
-    gl_FragColor = gl_FrontMaterial.emission + globalAmbient + ambient + diffuse + specular;
+  gl_FragColor =texture2D(texUnit1,texCoordV) * (gl_FrontMaterial.emission + globalAmbient + ambient + diffuse) + specular;
 	
    
 	
