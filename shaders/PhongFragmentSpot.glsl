@@ -4,7 +4,8 @@
 
 varying vec3 N;
 varying vec4 v;
-
+varying vec2 texCoordV;
+uniform sampler2D texUnit1;
 /* We are only taking into consideration light0 and assuming it is a point light */
 void main (void) {	
   vec4 ambient, globalAmbient, color;
@@ -16,6 +17,7 @@ void main (void) {
 
    /* Color is global ambient, at least */
    color = globalAmbient + gl_FrontMaterial.emission;
+   color*=texture2D(texUnit1,texCoordV);
    
 	
    /* Diffuse calculations */
@@ -71,7 +73,10 @@ void main (void) {
 		    specular = gl_FrontMaterial.specular * gl_LightSource[1].specular * pow(NdotHV,gl_FrontMaterial.shininess);
 		    specular = clamp(specular,0,1);
 
-		    color += att * (diffuse + specular);
+		    color +=att*diffuse*texture2D(texUnit1,texCoordV);
+		    color += att*specular;
+
+		    // color += att * (diffuse + specular);
 		    /*color = vec4(0.0,1.0,0.0,1.0);*/
 		  }
 		 
