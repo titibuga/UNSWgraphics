@@ -14,6 +14,15 @@ public class Road {
 
     private List<Double> myPoints;
     private double myWidth;
+    
+    
+    //Shader
+    private static final String VERTEX_SHADER = "shaders/PhongVertex.glsl";
+    private static final String FRAGMENT_SHADER_DAY = "shaders/PhongFragDir.glsl";
+    private static final String FRAGMENT_SHADER_NIGHT = "shaders/PhongFragmentSpot.glsl";
+    private int shaderprogram;
+    private int[] shaders;
+    private boolean night;
 	
 	//Texture file information
 	private String TEX_0 = "textures/brick_texture.jpg";
@@ -31,6 +40,7 @@ public class Road {
         myPoints = new ArrayList<Double>();
         myPoints.add(x0);
         myPoints.add(y0);
+        night = false;
     }
 
     /**
@@ -46,6 +56,12 @@ public class Road {
             myPoints.add(spine[i]);
         }
     }
+    
+    public void setNight(boolean b)
+	{
+		if(b) shaderprogram = shaders[1];
+		else shaderprogram = shaders[0];
+	}
 
     /**
      * The width of the road.
@@ -223,6 +239,25 @@ public class Road {
     {
     	// Texture road
         myTextures[0] = new MyTexture(gl,TEX_0,TEX_F_0,true);
+        
+        //load texture
+        shaders = new int[2];
+		 try 
+		 {
+			 shaders[0] = Shader.initShaders(gl,VERTEX_SHADER,FRAGMENT_SHADER_DAY);   	
+			 shaders[1] = Shader.initShaders(gl,VERTEX_SHADER,FRAGMENT_SHADER_NIGHT); 
+	     }
+		 catch (Exception e) {
+			 System.err.println("Error while loading  shader");
+			 e.printStackTrace();
+	         System.exit(1);
+		 }
+		 int texUnitLoc = gl.glGetUniformLocation(shaders[0],"texUnit1");
+		 gl.glUniform1i(texUnitLoc, 0);
+		 texUnitLoc = gl.glGetUniformLocation(shaders[1],"texUnit1");
+		 gl.glUniform1i(texUnitLoc, 0);
+		 
+		 shaderprogram = shaders[0];
     }
     
    
@@ -230,6 +265,8 @@ public class Road {
     {
     	double i = 0;
 //    	gl.glColor3f(0,0,0);
+    	
+    	gl.glUseProgram(shaderprogram);
     	
         float matAmbAndDif[] = {0.6f, 0.6f, 0.6f, 1.0f};
         float matSpec[] = { 0.4f, 0.4f, 0.4f, 1.0f };
@@ -286,6 +323,8 @@ public class Road {
     	}
     	
     	gl.glEnd();
+    	
+    	gl.glUseProgram(0);
     	
     }
     

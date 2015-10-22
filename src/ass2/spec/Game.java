@@ -515,6 +515,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 				
 				for(Other o : myTerrain.others())
 					o.setNight(night);
+				for(Road r : myTerrain.roads())
+					r.setNight(night);
 		   		break;
 		    case KeyEvent.VK_SPACE:
 		    	myTerrain.switchWire();
