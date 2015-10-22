@@ -22,7 +22,6 @@ public class Road {
     private static final String FRAGMENT_SHADER_NIGHT = "shaders/PhongFragmentSpot.glsl";
     private int shaderprogram;
     private int[] shaders;
-    private boolean night;
 	
 	//Texture file information
 	private String TEX_0 = "textures/brick_texture.jpg";
@@ -40,7 +39,6 @@ public class Road {
         myPoints = new ArrayList<Double>();
         myPoints.add(x0);
         myPoints.add(y0);
-        night = false;
     }
 
     /**
@@ -240,7 +238,7 @@ public class Road {
     	// Texture road
         myTextures[0] = new MyTexture(gl,TEX_0,TEX_F_0,true);
         
-        //load texture
+        //Shader
         shaders = new int[2];
 		 try 
 		 {

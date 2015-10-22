@@ -38,6 +38,13 @@ public class Terrain {
 	private String TEX_0 = "textures/grass_texture.jpg";
 	private String TEX_F_0 = ".jpg";
 	
+	//Shader
+    private static final String VERTEX_SHADER = "shaders/PhongVertex.glsl";
+    private static final String FRAGMENT_SHADER_DAY = "shaders/PhongFragDir.glsl";
+    private static final String FRAGMENT_SHADER_NIGHT = "shaders/PhongFragmentSpot.glsl";
+    private int shaderprogram;
+    private int[] shaders;
+	
 	//Texture data
 	private MyTexture myTextures[] = new MyTexture[2];
 
@@ -87,6 +94,17 @@ public class Terrain {
     public float[] getSunlight() {
         return mySunlight;
     }
+    
+    public void setNight(boolean b)
+	{
+		if(b) shaderprogram = shaders[1];
+		else shaderprogram = shaders[0];
+		
+		for(Other o : this.others())
+			o.setNight(b);
+		for(Road r : this.roads())
+			r.setNight(b);
+	}
 
     /**
      * Set the sunlight direction. 
@@ -319,6 +337,25 @@ public class Terrain {
 		// Texture ground
         myTextures[0] = new MyTexture(gl,TEX_0,TEX_F_0,true);
         
+        //Shader
+        shaders = new int[2];
+		 try 
+		 {
+			 shaders[0] = Shader.initShaders(gl,VERTEX_SHADER,FRAGMENT_SHADER_DAY);   	
+			 shaders[1] = Shader.initShaders(gl,VERTEX_SHADER,FRAGMENT_SHADER_NIGHT); 
+	     }
+		 catch (Exception e) {
+			 System.err.println("Error while loading  shader");
+			 e.printStackTrace();
+	         System.exit(1);
+		 }
+		 int texUnitLoc = gl.glGetUniformLocation(shaders[0],"texUnit1");
+		 gl.glUniform1i(texUnitLoc, 0);
+		 texUnitLoc = gl.glGetUniformLocation(shaders[1],"texUnit1");
+		 gl.glUniform1i(texUnitLoc, 0);
+		 
+		 shaderprogram = shaders[0];
+        
         //Recursively call the load texture of other objects from the terrain
         for(Tree t : this.myTrees) t.loadTextures(gl);
         for(Road r : this.myRoads) r.loadTextures(gl);
@@ -334,6 +371,10 @@ public class Terrain {
 		v1[0] = 1;
 		v1[2] = -1;
 	    double[] v2 = new double[3];
+	    
+	    //Shader
+	    gl.glUseProgram(shaderprogram);
+	    
     	// Materials and Color of terrain
     	float matAmbAndDifTerrain[] = {0.55f, 0.65f, 0.31f, 1.0f};
     	float matAmbAndDifTerrainBack[] = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -386,6 +427,7 @@ public class Terrain {
 		    	gl.glEnd();
 	    	}
 	    }
+	    gl.glUseProgram(0);
 	    gl.glDisable(GL2.GL_TEXTURE_2D);
 	    gl.glLightModeli(GL2.GL_LIGHT_MODEL_TWO_SIDE, GL2.GL_FALSE);
 	    // Draw grid of terrain
