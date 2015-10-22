@@ -139,7 +139,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 					double hav;
 					hav = myTerrain.altitude(posCamx, posCamz);
 					gl.glTranslated(posCamx, hav + 0.2, posCamz);
-					gl.glRotated(rotationCam[1],0,1,0);
+					//gl.glRotated(rotationCam[1],0,1,0);
 					gl.glRotated(angleAvatar, 0, 1, 0);
 					gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, new float[]{0.0f,0.0f,0.0f,1.0f}, 0);
 					gl.glEnable(GL2.GL_LIGHT1);
@@ -158,7 +158,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 				hav = myTerrain.altitude(posCamx, posCamz);
 				gl.glPushMatrix();
 					gl.glTranslated(posCamx, hav + 0.20 , posCamz);
-					gl.glRotated(-90 + rotationCam[1],0,1,0);
+					gl.glRotated(-90,0,1,0);
 					if (night){
 			    		int slices = 20;
 			    		float diameter_cone = 0.03f;
@@ -469,33 +469,39 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	public void keyPressed(KeyEvent e) {
 		int direction = 1;
 		switch (e.getKeyCode()) {  
-			case KeyEvent.VK_J:
+			case KeyEvent.VK_DOWN:
 				direction = -1;
-			case KeyEvent.VK_U:
+			case KeyEvent.VK_UP:
 				// Control the size of the Pacman's mouth
 				if (openMouth == 3) openMouth = 1;
 				else openMouth = 3;
 				// Update camera position 
-				double rads = Math.toRadians(rotationCam[1]);
+				double rads = 0;
+				if(firstPerson) rads = Math.toRadians(rotationCam[1]);
+				else rads = Math.toRadians(angleAvatar);
 				posCamz+= direction*Math.cos(rads)*camSpeed;
 				posCamx+= direction*Math.sin(rads)*camSpeed;
 				break;
 			case KeyEvent.VK_LEFT:
-				rotationCam[1] = (rotationCam[1] + 5)%360;
+				if(firstPerson || e.isShiftDown()) 	rotationCam[1] = (rotationCam[1] + 5)%360;
+				else angleAvatar = (angleAvatar + 5) % 360;
 				break;
 			case KeyEvent.VK_RIGHT:
-				rotationCam[1] = (rotationCam[1] - 5)%360;
+				if(firstPerson || e.isShiftDown()) rotationCam[1] = (rotationCam[1] - 5)%360;
+				else angleAvatar = (angleAvatar - 5) % 360;
 				break;
-			 case KeyEvent.VK_DOWN:
+			 case KeyEvent.VK_J:
 				//angle = (angle - 5) % 360;
-				 rotationCam[0] = (rotationCam[0] - 5) % 360;
+				 if(!firstPerson) rotationCam[0] = (rotationCam[0] - 5) % 360;
 				break;
-		     case KeyEvent.VK_UP:
+		     case KeyEvent.VK_U:
 				//angle = (angle + 5) % 360;
-		    	 rotationCam[0] =  (rotationCam[0] + 5) % 360;
+		    	 if(!firstPerson )rotationCam[0] =  (rotationCam[0] + 5) % 360;
 				break;	
 		    case KeyEvent.VK_P:
 		   		firstPerson = !firstPerson;
+		   		if(firstPerson) rotationCam[1] = angleAvatar;
+		   		else angleAvatar = rotationCam[1];
 		   		//Force reshape
 		   		//TODO: Force reshape in a better way
 		   		Dimension d = getSize();
@@ -511,8 +517,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 					o.setNight(night);
 		   		break;
 		    case KeyEvent.VK_SPACE:
+		    	myTerrain.switchWire();
+		    	break;
+		   /* case KeyEvent.VK_SPACE:
 		    	for(Other o : myTerrain.others()) o.switchShader();
-		   		break;
+		   		break;*/
 		    case KeyEvent.VK_Z:
 				if (!rotateSun) rotateSun = true;
 				else (rotateSun) = false;

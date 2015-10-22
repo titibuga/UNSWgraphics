@@ -32,6 +32,7 @@ public class Terrain {
     private List<Other> myOthers;
     private List<Road> myRoads;
     private float[] mySunlight;
+    private boolean wireframe;
 	
 	//Texture file information
 	private String TEX_0 = "textures/grass_texture.jpg";
@@ -53,7 +54,13 @@ public class Terrain {
         myOthers = new ArrayList<Other>();
         myRoads = new ArrayList<Road>();
         mySunlight = new float[3];
+        wireframe = false;
         
+    }
+    
+    public void switchWire()
+    {
+    	wireframe = !wireframe;
     }
     
     public Terrain(Dimension size) {
@@ -382,28 +389,30 @@ public class Terrain {
 	    gl.glDisable(GL2.GL_TEXTURE_2D);
 	    gl.glLightModeli(GL2.GL_LIGHT_MODEL_TWO_SIDE, GL2.GL_FALSE);
 	    // Draw grid of terrain
-	    gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_LINE);
-    	float matAmbAndDifTerrainG[] = {0.0f, 0.0f, 0.0f, 1.0f};
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifTerrainG,0);
-	    for(int i = 0; i < size().width-1; i++) {
-	    	for(int j = 0; j < size().height-1; j++) {
-	    		double[] h = new double[]{ getGridAltitude(i, j),
-						   getGridAltitude(i, j+1),
-						   getGridAltitude(i+1, j),
-						   getGridAltitude(i+1, j+1),};
-	    		gl.glLineWidth(3.0f);
-	        	gl.glBegin(GL.GL_TRIANGLES);
-	    	    	gl.glVertex3d(i,h[0],j); // P0
-	    	    	gl.glVertex3d(i,h[1],j+1);// P1
-	    	    	gl.glVertex3d(i+1,h[2],j); // P2
-	    	    	
-	    	    	gl.glVertex3d(i,h[1],j+1);// P1
-	    	    	gl.glVertex3d(i+1,h[3],j+1); // P3
-	    	    	gl.glVertex3d(i+1,h[2],j); // P2
-	        	gl.glEnd();
-	        	gl.glLineWidth(1.0f);
-	    	}
+	    if(wireframe){
+		    gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_LINE);
+	    	float matAmbAndDifTerrainG[] = {0.0f, 0.0f, 0.0f, 1.0f};
+	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifTerrainG,0);
+		    for(int i = 0; i < size().width-1; i++) {
+		    	for(int j = 0; j < size().height-1; j++) {
+		    		double[] h = new double[]{ getGridAltitude(i, j),
+							   getGridAltitude(i, j+1),
+							   getGridAltitude(i+1, j),
+							   getGridAltitude(i+1, j+1),};
+		    		gl.glLineWidth(3.0f);
+		        	gl.glBegin(GL.GL_TRIANGLES);
+		    	    	gl.glVertex3d(i,h[0],j); // P0
+		    	    	gl.glVertex3d(i,h[1],j+1);// P1
+		    	    	gl.glVertex3d(i+1,h[2],j); // P2
+		    	    	
+		    	    	gl.glVertex3d(i,h[1],j+1);// P1
+		    	    	gl.glVertex3d(i+1,h[3],j+1); // P3
+		    	    	gl.glVertex3d(i+1,h[2],j); // P2
+		        	gl.glEnd();
+		        	gl.glLineWidth(1.0f);
+		    	}
+		    }
+		    gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
 	    }
-	    gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
     }
 }
