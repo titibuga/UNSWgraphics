@@ -16,7 +16,7 @@ public class Road {
     private double myWidth;
 	
 	//Texture file information
-	private String TEX_0 = "src/ass2/spec/road_texture.jpg";
+	private String TEX_0 = "src/ass2/spec/brick_texture.jpg";
 	private String TEX_F_0 = ".jpg";
 	
 	//Texture data
@@ -271,7 +271,8 @@ public class Road {
     		
     		double eps = 0.001;
     		double w = this.width()/2;
-    	
+
+    		gl.glNormal3d(0, 1, 0);
     		gl.glTexCoord2d(-w*normal2d[0]+p[0], -w*normal2d[1] + p[1]); 
     		gl.glVertex3d(-w*normal2d[0]+p[0], h + eps, -w*normal2d[1] + p[1]);
     		gl.glTexCoord2d(w*normal2d[0]+p[0], w*normal2d[1] + p[1]); 
