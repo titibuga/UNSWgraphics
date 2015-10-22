@@ -16,7 +16,7 @@ public class Road {
     private double myWidth;
 	
 	//Texture file information
-	private String TEX_0 = "src/ass2/spec/brick_texture.jpg";
+	private String TEX_0 = "textures/brick_texture.jpg";
 	private String TEX_F_0 = ".jpg";
 	
 	//Texture data

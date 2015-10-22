@@ -101,9 +101,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    gl.glLoadIdentity();
 	    
 	    setUpCamera(gl);
-	    GLUT glut = new GLUT();
 	    gl.glPushMatrix();
-		    //Start drawing   
+		    //Start drawing
 			// Draw Light
 			if (!night) {
 				gl.glEnable(GL2.GL_LIGHT0);
@@ -532,8 +531,6 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		 }
 	}
 	
-	
-
 	@Override
 	public void keyReleased(KeyEvent arg0) {
 		// TODO Auto-generated method stub

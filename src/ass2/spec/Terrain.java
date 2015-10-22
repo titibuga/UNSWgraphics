@@ -34,7 +34,7 @@ public class Terrain {
     private float[] mySunlight;
 	
 	//Texture file information
-	private String TEX_0 = "src/ass2/spec/grass_texture.jpg";
+	private String TEX_0 = "textures/grass_texture.jpg";
 	private String TEX_F_0 = ".jpg";
 	
 	//Texture data

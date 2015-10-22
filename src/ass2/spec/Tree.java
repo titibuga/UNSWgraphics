@@ -12,8 +12,8 @@ public class Tree {
 
     private double[] myPos;
 	//Texture file information
-	private String TEX_0 = "src/ass2/spec/trunk_texture.jpg";
-	private String TEX_1 = "src/ass2/spec/leaves_texture.jpg";
+	private String TEX_0 = "textures/trunk_texture.jpg";
+	private String TEX_1 = "textures/leaves_texture.jpg";
 	private String TEX_F_0 = ".jpg";
 	private String TEX_F_1 = ".jpg";
 	

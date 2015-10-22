@@ -79,23 +79,23 @@ public class Other {
     
     private float texCoords[] =  
 		{	
-    		0,0, 1,0, 1,1, 
-    		0,0,1,1,0,1,
+    		1,0, 1,1, 0,1, 
+    		1,0, 0,1, 0,0,
     		
-    		0,0, 1,0, 1,1, 
-    		0,0,1,1,0,1,
+    		1,0, 1,1, 0,1, 
+    		1,0, 0,1, 0,0,
     		
-    		0,0, 1,0, 1,1, 
-    		0,0,1,1,0,1,
+    		1,0, 1,1, 0,1, 
+    		1,0, 0,1, 0,0,
     		
-    		0,0, 1,0, 1,1, 
-    		0,0,1,1,0,1,
+    		1,0, 1,1, 0,1, 
+    		1,0, 0,1, 0,0,
     		
-    		0,0, 1,0, 1,1, 
-    		0,0,1,1,0,1,
+    		1,0, 1,1, 0,1, 
+    		1,0, 0,1, 0,0,
     		
-    		0,0, 1,0, 1,1, 
-    		0,0,1,1,0,1,
+    		1,0, 1,1, 0,1, 
+    		1,0, 0,1, 0,0,
 
 		};
     
@@ -106,7 +106,7 @@ public class Other {
   	private FloatBuffer texData = Buffers.newDirectFloatBuffer(texCoords);
     
     //Texture file information
-  	private String TEX_0 = "src/ass2/spec/monster_texture.jpg";
+  	private String TEX_0 = "textures/enemy_texture.jpg";
   	private String TEX_F_0 = ".jpg";
   	
   	//Texture data
@@ -223,9 +223,9 @@ public class Other {
 	
 		
 		//Material properties
-		float matAmbAndDifAvatar[] = {1f, 0f, 0.0f, 1.0f};
-        float matSpecAvatar[] = { 0.1f, 0.1f, 0.1f, 1.0f };
-        float matShineAvatar[] = { 3.0f };
+		float matAmbAndDifAvatar[] = {0.7f, 0.6f, 1.0f, 1.0f};
+        float matSpecAvatar[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+        float matShineAvatar[] = { 100.0f };
         float emmSun[] = {0.0f, 0.0f, 0.0f, 1.0f};
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, emmSun,0);
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDifAvatar,0);
@@ -258,27 +258,6 @@ public class Other {
 		gl.glPopMatrix();
 		if(useShaders) gl.glUseProgram(0);
 	}
-	
-	private void drawOneFace(GL2 gl)
-	{
-		gl.glBegin(GL.GL_TRIANGLES);
-		gl.glNormal3d(0, 0, -1);
-		//Triangles
-		gl.glTexCoord2d(0, 0); 
-		gl.glVertex3d(0, 0, 0);
-		gl.glTexCoord2d(0, 1); 
-		gl.glVertex3d(0, 1, 0);
-		gl.glTexCoord2d(1, 1); 
-		gl.glVertex3d(1,1,0);
-		
-		gl.glTexCoord2d(0, 0); 
-		gl.glVertex3d(0, 0, 0);
-		gl.glTexCoord2d(1, 1); 
-		gl.glVertex3d(1, 1, 0);
-		gl.glTexCoord2d(1, 0); 
-		gl.glVertex3d(1,0,0);
-		gl.glEnd();
-		
-	}
+
 
 }
