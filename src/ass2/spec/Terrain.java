@@ -159,32 +159,109 @@ public class Terrain {
         	zInt2++;
         }
         
-        if(xInt < 0 || zInt < 0 ||
+        if(x < 0 || z < 0 ||
 			       zInt2 >= this.size().height ||
 			       xInt2 >= this.size().width)
-        	return 0;
+        	return 0;      
+       
         
         
-        
+        int bla = 0;
         double[][] p = new double [4][3];
         p[0][0] = xInt;
         p[0][1] = zInt;
         p[0][2] = getGridAltitude(xInt, zInt);
+      //  System.out.println("Interp1 : x:"+p[bla][0]+" y:"+p[bla][2]+" z:"+p[bla][1]);
         p[1][0] = xInt2;
         p[1][1] = zInt;
         p[1][2] = getGridAltitude(xInt2, zInt);
+        bla = 1;
+       // System.out.println("Interp2 : x:"+p[bla][0]+" y:"+p[bla][2]+" z:"+p[bla][1]);
         p[2][0] = xInt;
         p[2][1] = zInt2;
         p[2][2] = getGridAltitude(xInt, zInt2);
+        bla = 2;
+        //System.out.println("Interp3 : x:"+p[bla][0]+" y:"+p[bla][2]+" z:"+p[bla][1]);
         p[3][0] = xInt2;
         p[3][1] = zInt2;
         p[3][2] = getGridAltitude(xInt2, zInt2);
-
+        bla = 3;
+        //System.out.println("Interp4 : x:"+p[bla][0]+" y:"+p[bla][2]+" z:"+p[bla][1]);
+        
         double frac1 = x - xInt;
         double frac2 = z - zInt;
-        altitude = (p[1][2]*frac1 + p[0][2]*(1-frac1))*(1-frac2) + 
-        			(p[3][2]*frac1 + p[2][2]*(1-frac1))*frac2;
+        
+        //Simples cases first
+        
+        if(x - xInt == 0)
+        {
+        	return p[0][2]*(1-frac2) + p[2][2]*frac2;
+        }
+        else if(z - zInt == 0)
+        {
+        	return p[0][2]*(1-frac1) + p[1][2]*frac1;
+        }
+        
+        //More complicated case
+        
+       // double distp0 = distSquare(x,z,p[0][0],p[0][1]);
+        //double distp3 = distSquare(x,z,p[3][0],p[3][1]);
+        
+        double[] u1, u2, u3, t;
+        
+        t = new double[]{x,z};
+        
+        u1 = p[1];
+        u2 = p[2];
+        
+        
+        //In which triangle is our tree?
+        if( left(u1,u2, t) ) u3 = p[0];
+        else u3 = p[3];
+        
+
+        
+        //The weight of ui will be the area Ai of the
+        // triangle using all other vertices
+
+        double A1 = unsarea2(u2, u3, t);
+        double A2 = unsarea2(u1,u3, t);
+        double A3 = unsarea2(u1,u2,t);
+        double A = A1 + A2 + A3;
+/*
+        System.out.println("u1:("+u1[0]+","+u1[1]+","+u1[2]+") - w:"+A1/A);
+        System.out.println("u2:("+u2[0]+","+u2[1]+","+u2[2]+") - w:"+A2/A);
+        System.out.println("u3:("+u3[0]+","+u3[1]+","+u3[2]+") - w:"+A3/A);
+        */
+        
+        altitude = u1[2]*(A1/A) + u2[2]*(A2/A) + u3[2]*(A3/A);
+        //System.out.println("Result:"+altitude+" for x:"+x+" y:"+z);
         return altitude;
+    }
+    
+    
+    private double unsarea2(double[] a, double[] b, double[] c)
+    {
+    	return Math.abs(area2(a,b,c));
+    }
+    
+    private double area2(double[] a, double[] b, double[] c)
+    {
+    	return ((b[0] - a[0])*(c[1] - a[1]) - (b[1] - a[1])*(c[0] - a[0]));
+    }
+    
+    //true if c is on the left of a->b
+    private boolean left(double[] a, double[] b, double[] c)
+    {
+    	return area2(a,b,c) > 0;
+    	
+    }
+    
+    private double distSquare(double x1,double y1,double x2,double y2)
+    {
+    	double dx = (x2 - x1);
+    	double dy = (y2 - y1);
+    	return dx*dx + dy+dy;
     }
     
 
