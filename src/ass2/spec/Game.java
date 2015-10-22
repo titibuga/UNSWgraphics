@@ -27,8 +27,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 
     private Terrain myTerrain;
     int angle = 0;
-    int trans = 0;
-    int transy = 0;
+    int angleCamera = 0;
     double angleSun = 0;
     double yAngle = 0;
     double theta = 0;
@@ -105,13 +104,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    GLUT glut = new GLUT();
 	    gl.glPushMatrix();
 		    //Start drawing   
-			gl.glTranslated(trans,transy,0);
 			// Draw Light
 			if (!night) {
 				gl.glEnable(GL2.GL_LIGHT0);
 				gl.glDisable(GL2.GL_LIGHT1);
 		        gl.glPushMatrix();
-		        	float lightDir[] = { myTerrain.getSunlight()[0], myTerrain.getSunlight()[1], myTerrain.getSunlight()[2], 0.0f };
+		        	float lightDir[] = { 3*myTerrain.getSunlight()[0], 3*myTerrain.getSunlight()[1], 3*myTerrain.getSunlight()[2], 0.0f };
 		        	if (rotateSun) {
 		        		float sun_height = 4.0f;
 		        		lightDir[0] = myTerrain.size().width/2;
@@ -139,28 +137,22 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 				gl.glDisable(GL2.GL_LIGHT0);
 				gl.glEnable(GL2.GL_LIGHT1);
 				gl.glPushMatrix();
-				double hav;
-				hav = myTerrain.altitude(posCamx, posCamz);
-				gl.glTranslated(posCamx, hav + 0.2, posCamz);
-				gl.glRotated(rotationCam[1],0,1,0);
-				//gl.glColor3f(0,1,0);
-	        	//glut.glutSolidTeapot(0.7);
-				gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, new float[]{0.0f,0.0f,0.0f,1.0f}, 0);
-				gl.glEnable(GL2.GL_LIGHT1);
-				// Parameters for Torch
-		    	float spotDirection[] = {0.1f, 0.1f, 1.0f}; // Spotlight direction.
-		    	float spotAngle = 45.0f; // Spotlight cone half-angle.
-	        	float spotExponent = 2.0f; // Spotlight exponent = attenuation factor.
-	        	gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, spotAngle);
-	        	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION, spotDirection, 0);	        	   
-	        	gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_EXPONENT, spotExponent);
-	        	
+					double hav;
+					hav = myTerrain.altitude(posCamx, posCamz);
+					gl.glTranslated(posCamx, hav + 0.2, posCamz);
+					gl.glRotated(rotationCam[1],0,1,0);
+					gl.glRotated(angleAvatar, 0, 1, 0);
+					gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, new float[]{0.0f,0.0f,0.0f,1.0f}, 0);
+					gl.glEnable(GL2.GL_LIGHT1);
+					// Parameters for Torch
+			    	float spotDirection[] = {0.1f, 0.1f, 1.0f}; // Spotlight direction.
+			    	float spotAngle = 45.0f; // Spotlight cone half-angle.
+		        	float spotExponent = 2.0f; // Spotlight exponent = attenuation factor.
+		        	gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_CUTOFF, spotAngle);
+		        	gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_SPOT_DIRECTION, spotDirection, 0);	        	   
+		        	gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_EXPONENT, spotExponent);
 	        	gl.glPopMatrix();
-	        	
-
 			}
-		
-			
 			if(!this.firstPerson)
 			{
 				double hav;
@@ -169,17 +161,15 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 					gl.glTranslated(posCamx, hav + 0.20 , posCamz);
 					gl.glRotated(-90 + rotationCam[1],0,1,0);
 					if (night){
-						
 			    		int slices = 20;
 			    		float diameter_cone = 0.03f;
 			    		float height_cone = 0.3f;
 			    		double diameter_fire = 0.05;
-			    		
-			    		float lightDirAvatar[] = {0.3f, 0.3f , 0f, 1f };
-						//gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, lightDirAvatar, 0);
-						
-						
-			        	drawTorch(gl, lightDirAvatar, slices, diameter_cone, height_cone, diameter_fire);
+			    		float lightDirAvatar[] = {0.0f, 0.4f , 0f, 1f };
+			    		gl.glPushMatrix();
+				    		gl.glRotated(angleAvatar, 0, 1, 0);
+				        	drawTorch(gl, lightDirAvatar, slices, diameter_cone, height_cone, diameter_fire);
+			        	gl.glPopMatrix();
 					}
 					//Draw avatar 
 					gl.glPushMatrix();
@@ -217,6 +207,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	        myTerrain.draw(gl);
 	    gl.glPopMatrix();
 	}
+	
 	public void drawAvatar(GL2 gl) {
     	float matAmbAndDifAvatar[] = {0.7f, 0.7f, 0.0f, 1.0f};
         float matSpecAvatar[] = { 0.3f, 0.3f, 0.3f, 1.0f };
@@ -359,14 +350,13 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	
     //Update model of sun used in texture
     private void updateSun() {
-    	if (angleSun >= 360) angleSun = 0;
-		if (angleSun == 0) red = 0.4f;
-		red = red + 1.2f/360f;
+    	angleSun = (angleSun + 2) % 360;
+    	theta = (theta + 5) % 360;
+    	// Reset color of the sun
+		if (angleSun == 320) red = 0.4f;
+		// Update
 		green = 0.4f;
-		angleSun = angleSun + 2;
-        theta = theta + 5;
-//		System.out.println("red: " + red + " green: " +green);
-//		System.out.println("angle: " + angleSun);
+		red = red + 1.2f/360f;
     }
     
 	public void setUpLightning(GL2 gl){
@@ -467,15 +457,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    gl.glLoadIdentity();
 	    double distNear = 0.01;
 	    double ar = ((double)width)/((double)height);
-	    
 	    if(!firstPerson) distNear = 2;
-
-	    double window = 0.5;
-	  //  gl.glOrtho(-window, window, -window, window, 0.1, 10);
 	    GLU glu = new GLU();
-	  //  gl.glFrustum(-window, window, -window, window, 0.5, 10);
 	    glu.gluPerspective(60, ar, distNear, 100);
-//	    System.out.println(distNear);
+//	    double window = 0.5;
+//	    gl.glOrtho(-window, window, -window, window, 0.1, 10);
+//	    gl.glFrustum(-window, window, -window, window, 0.5, 10);
 	}
 	
 	
@@ -486,8 +473,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 			case KeyEvent.VK_J:
 				direction = -1;
 			case KeyEvent.VK_U:
+				// Control the size of the Pacman's mouth
 				if (openMouth == 3) openMouth = 1;
 				else openMouth = 3;
+				// Update camera position 
 				double rads = Math.toRadians(rotationCam[1]);
 				posCamz+= direction*Math.cos(rads)*camSpeed;
 				posCamx+= direction*Math.sin(rads)*camSpeed;
@@ -531,6 +520,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		   		break;
 		    case KeyEvent.VK_X:
 				angleAvatar = (angleAvatar + 10) % 360;
+		   		break;
+		    case KeyEvent.VK_B:
+		    	angleCamera = (angleCamera + 10) % 360;
+		   		break;
+		    case KeyEvent.VK_N:
+		    	angleCamera = (angleCamera - 10) % 360;
 		   		break;
 			default:
 				break;
