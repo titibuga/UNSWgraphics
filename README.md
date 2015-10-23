@@ -18,3 +18,7 @@ Other controls:
 -> SPACE key turns on/off the wireframe on the terrain
 -> In third person mode, the arrow keys will onyl move the avatar. To
 move the camera, hold down shift while pressing the arrow keys
+
+Maps:
+
+-> On the folder maps, map1.txt has some objects of the type "Other". 

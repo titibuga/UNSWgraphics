@@ -30,7 +30,8 @@ public class MyTexture {
 		mipMapEnabled = mipmaps;
 		TextureData data = null;
 		try {
-			 File file = new File(fileName);
+			 //System.out.println("Abrindo: "+fileName);
+			 File file = new File(this.getClass().getResource(fileName).getFile());
 			 BufferedImage img = ImageIO.read(file); // read file into BufferedImage
 			 ImageUtil.flipImageVertically(img);
 
