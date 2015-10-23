@@ -31,8 +31,8 @@ public class MyTexture {
 		TextureData data = null;
 		try {
 			 //System.out.println("Abrindo: "+fileName);
-			 File file = new File(this.getClass().getResource(fileName).getFile());
-			 BufferedImage img = ImageIO.read(file); // read file into BufferedImage
+			// File file = new File(this.getClass().getResource(fileName).getFile());
+			 BufferedImage img = ImageIO.read(this.getClass().getResource(fileName)); // read file into BufferedImage
 			 ImageUtil.flipImageVertically(img);
 
 			 //This library will result in different formats being upside down.
