@@ -25,7 +25,7 @@ public class Other {
     
     
     
-    
+    // Normals for the cube
     private float[] normals = 
     	{
     		//F1
@@ -42,7 +42,7 @@ public class Other {
     		0,1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1,0,
     	};
     
-    
+    //Vertices positions
     private float[] positions = 
     	{
 
@@ -76,7 +76,7 @@ public class Other {
     		
     	};
     
-    
+    // Texture coordinates 
     private float texCoords[] =  
 		{	
     		1,0, 1,1, 0,1, 
@@ -125,6 +125,11 @@ public class Other {
 		else shaderprogram = shaders[0];
 	}
 	
+	/**
+	 *  Set up vbo information of our object
+	 * @param gl
+	 */
+	
 	private void setUpvbo(GL2 gl)
 	{
 		bufferIds = new int[1];
@@ -132,7 +137,7 @@ public class Other {
 		//Generate 1 VBO buffer and get its ID
         gl.glGenBuffers(1,bufferIds,0);
        
-   	 //This buffer is now the current array buffer
+   	 	//This buffer is now the current array buffer
         //array buffers hold vertex attribute data
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER,bufferIds[0]);
      
@@ -162,6 +167,10 @@ public class Other {
   	   
 	}
 	
+	/**
+	 * Load the necessary textures and shaders for the cube
+	 * @param gl
+	 */
 	
 	public void loadTextures(GL2 gl)
 	{
@@ -186,11 +195,21 @@ public class Other {
 		 myTextures[0] = new MyTexture(gl,TEX_0,TEX_F_0,true);
 	}
 	
+	
+	/**
+	 * Debug function to activate/deactivate the use of
+	 * out shaders
+	 */
 	public void switchShader()
 	{
 		useShaders = !useShaders;
 	}
 	
+	
+	/**
+	 * Draw the cube (using shaders and VBO)
+	 * @param gl
+	 */
 	
 	public void draw(GL2 gl)
 	{

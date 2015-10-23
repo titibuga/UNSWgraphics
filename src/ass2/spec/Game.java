@@ -25,22 +25,23 @@ import com.jogamp.opengl.util.gl2.GLUT;
  */
 public class Game extends JFrame implements GLEventListener, KeyListener{
 
-    private Terrain myTerrain;
-    int angle = 0;
-    int angleCamera = 0;
-    double angleSun = 0;
-    double yAngle = 0;
-    double theta = 0;
+	private static final long serialVersionUID = 1L;
+	private Terrain myTerrain;
+   // int angle = 0;
+   // int angleCamera = 0;
+    double angleSun = 0; //Angle of the sun whe it is rotating
+   // double yAngle = 0;
+    double theta = 0; //Sun's y-rotation, just for fun
     double camSpeed = 0.3;
     double posCamx = 0, posCamz = 0;
-    double[] rotationCam;
+    double[] rotationCam; //x,y and z rotaiton of the camera
+    					//Probably only x and y are used
     boolean firstPerson;
-    float green;
-    float red;
-    boolean night;
-    boolean rotateSun;
-    int openMouth;
-    double angleAvatar;
+    float green, red;
+    boolean night; //Is it night?
+    boolean rotateSun; // Is the sun rotating?
+    int openMouth; //Controls avatar animation
+    double angleAvatar; //Avatar's y rotation
 
     public Game(Terrain terrain) {
     	super("Assignment 2");
@@ -79,6 +80,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
           setDefaultCloseOperation(EXIT_ON_CLOSE);        
     }
     
+    
     /**
      * Load a level file and display it.
      * 
@@ -90,12 +92,20 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
         Game game = new Game(terrain);
         game.run();
     }
+    
+    /**
+     * Display function. Several comments inside to explain parts of
+     * the code
+     */
 
 	@Override
 	public void display(GLAutoDrawable drawable) {
-		//Basic stuff first
 		GL2 gl = drawable.getGL().getGL2();
-		// Sky color
+		
+		
+		// Sky color and matrix initialization
+		
+		
 		if (!night) gl.glClearColor(0.88f, 1f, 1f, 1.0f);
 		else gl.glClearColor(0f, 0f, 0f, 1);
 		if (!night && rotateSun) updateSun();
@@ -104,9 +114,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    gl.glLoadIdentity();
 	    
 	    setUpCamera(gl);
-	    //Start drawing
 	    gl.glPushMatrix();
-			// Draw Light
+	    
+	    
+			// Set up appropriate lightning and draw sun
 			if (!night) {
 				gl.glEnable(GL2.GL_LIGHT0);
 				gl.glDisable(GL2.GL_LIGHT1);
@@ -154,6 +165,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		        	gl.glLightf(GL2.GL_LIGHT1, GL2.GL_SPOT_EXPONENT, spotExponent);
 	        	gl.glPopMatrix();
 			}
+			
+			// Draw avatar, torch, etc
 			if(!this.firstPerson)
 			{
 				double hav;
@@ -179,6 +192,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 					gl.glPopMatrix();
 				gl.glPopMatrix();
 			}
+			
+			
 			
 			// Draw others
 		    for(Other o : myTerrain.others())
@@ -209,6 +224,13 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    gl.glPopMatrix();
 	}
 	
+	/**
+	 * Function the makes the avatar drawing. Ou avatar is a sphere
+	 * with the appropriate opening and material so it looks like
+	 * Pac-man
+	 * @param gl
+	 */
+	
 	public void drawAvatar(GL2 gl) {
     	float matAmbAndDifAvatar[] = {0.7f, 0.7f, 0.0f, 1.0f};
         float matSpecAvatar[] = { 0.3f, 0.3f, 0.3f, 1.0f };
@@ -230,7 +252,14 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	        uvSphere(gl, 0.3, 25, 30, openMouth);
 	    gl.glPopMatrix();
 	}
-	
+	/**
+	 * Auxiliar funtion for the avatar drawing
+	 * @param gl
+	 * @param radius
+	 * @param slices
+	 * @param stacks
+	 * @param openMouth
+	 */
 	public static void uvSphere(GL2 gl, double radius, int slices, int stacks, int openMouth) {
 		gl.glLightModeli(GL2.GL_LIGHT_MODEL_TWO_SIDE, GL2.GL_TRUE);
 		if (radius <= 0)
@@ -282,6 +311,16 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		gl.glPopMatrix();
 	} 
 	
+	/**
+	 * Drawing of the avatar's torch
+	 * @param gl
+	 * @param lightDirAvatar
+	 * @param slices
+	 * @param diameter_cone
+	 * @param height_cone
+	 * @param diameter_fire
+	 */
+	
 	public void drawTorch(GL2 gl, float[] lightDirAvatar, int slices, float diameter_cone, float height_cone, double diameter_fire){
     	gl.glPushMatrix();
 	    	float matAmbAndDifTorch[] = {0.3f, 0.16f, 0.15f, 1.0f};
@@ -319,6 +358,14 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    	gl.glPopMatrix();
     	gl.glPopMatrix();
 	}
+	
+	/**
+	 * Function for drawing the sun
+	 * @param gl
+	 * @param sun_lines_length Length of the sun rays
+	 * @param stack Level of details
+	 * @param sun_rays Number of sun rays
+	 */
 	
 	public void drawSun(GL2 gl,double sun_lines_length, double stack, double sun_rays){
     	float matAmbAndDifSun[] = {red, green, 0.0f, 1.0f};
@@ -360,6 +407,13 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		red = red + 1.2f/360f;
     }
     
+    /**
+     * Set up the lights, both the day light (light0), that is 
+     * a directional light, as the night light (light1), with low
+     * ambient light and a directional light on avatar's position
+     * @param gl
+     */
+    
 	public void setUpLightning(GL2 gl){
 	    gl.glEnable(GL2.GL_LIGHTING);
 	  
@@ -397,6 +451,13 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
         gl.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, GL2.GL_TRUE);
         gl.glDisable(GL2.GL_LIGHT1);
 	}
+	
+	/**
+	 * Set up a perspective camera with appropriate rotation 
+	 * and positioning depending on or position on the map
+	 * @param gl
+	 */
+	
 	public void setUpCamera(GL2 gl){
 		
 		double h = 0;
@@ -449,7 +510,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	    myTerrain.loadTextures(gl);
 	}
 	
-
+	/**
+	 * TODO: We tried to force reshape call so we can adjust the near plane
+	 * 	of the camera every time we change from first person to third person
+	 * view and vice-versa, but it is not very stable
+	 */
 	@Override
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width,
 			int height) {
@@ -484,6 +549,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 				posCamz+= direction*Math.cos(rads)*camSpeed;
 				posCamx+= direction*Math.sin(rads)*camSpeed;
 				break;
+				
 			case KeyEvent.VK_LEFT:
 				if(firstPerson || e.isShiftDown()) 	rotationCam[1] = (rotationCam[1] + 5)%360;
 				angleAvatar = (angleAvatar + 5) % 360;
@@ -492,6 +558,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 				if(firstPerson || e.isShiftDown()) rotationCam[1] = (rotationCam[1] - 5)%360;
 				angleAvatar = (angleAvatar - 5) % 360;
 				break;
+				
+			//look up and down if in first person
 			 case KeyEvent.VK_J:
 				//angle = (angle - 5) % 360;
 				 if(!firstPerson) rotationCam[0] = (rotationCam[0] - 5) % 360;
@@ -500,6 +568,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 				//angle = (angle + 5) % 360;
 		    	 if(!firstPerson )rotationCam[0] =  (rotationCam[0] + 5) % 360;
 				break;	
+				
+			//Change view (first/third peson)
 		    case KeyEvent.VK_P:
 		   		firstPerson = !firstPerson;
 		   		if(firstPerson) rotationCam[1] = angleAvatar;
@@ -511,6 +581,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		   		setSize(d.height, d.width);
 		   		break;
 		
+		   //Set night
 		    case KeyEvent.VK_C:
 				if (!night) night = true;
 				else (night) = false;
@@ -520,12 +591,16 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 				for(Road r : myTerrain.roads())
 					r.setNight(night);*/
 		   		break;
+		   		
+		   	//Activate wireframe on the terrain
 		    case KeyEvent.VK_SPACE:
 		    	myTerrain.switchWire();
 		    	break;
 		   /* case KeyEvent.VK_SPACE:
 		    	for(Other o : myTerrain.others()) o.switchShader();
 		   		break;*/
+		    
+		    //Initiate suns rotation
 		    case KeyEvent.VK_Z:
 				if (!rotateSun) rotateSun = true;
 				else (rotateSun) = false;

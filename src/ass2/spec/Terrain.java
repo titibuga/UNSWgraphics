@@ -1,21 +1,12 @@
 package ass2.spec;
 
 import java.awt.Dimension;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Reader;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 
 
@@ -65,6 +56,10 @@ public class Terrain {
         
     }
     
+    /**
+     * Turn on the wireframe drawing of the terrain
+     */
+    
     public void switchWire()
     {
     	wireframe = !wireframe;
@@ -94,6 +89,13 @@ public class Terrain {
     public float[] getSunlight() {
         return mySunlight;
     }
+    
+    /**
+     * Make the terrain and other objects know that it's night.
+     * This is done so they can use the appropriate shader.
+     * 
+     * @param b
+     */
     
     public void setNight(boolean b)
 	{
@@ -165,6 +167,24 @@ public class Terrain {
      * Get the altitude at an arbitrary point. 
      * Non-integer points should be interpolated from neighbouring grid points
      * 
+     * The point x,z will be inside the square (xInt, zInt), (xInt2, zInt),
+     * 											(xInt, zInt2), (xInt2, zInt2).
+     * 
+     * If xInt == xInt2 or zInt == zInt2, the point is in a line and we can
+     * simply get the convex decomposition of this point and use this to
+     * interpolate the height.
+     * 
+     * For the more complicated case we know the (x,z) will be inside the triangle
+     * (xInt2, zInt) = u1, (xInt, zInt2), u3, where u3 can be one of the remaining points,
+     * and we discover which vertex should be u3 by using the "left" function to
+     * see in which side of the segment (xInt2, zInt), (zInt2, xInt) is our
+     * point (x,z).
+     * 
+     * Now we use barycentric coordinates, where we can decompose a point (x,z)
+     * int the convex sum of the 3 vertices of the triangle using as weight of
+     * the vertex ui the area of the triangle <t,ui-1, ui+1> (i+1 and i-1 loop
+     * if negative or bigger than 3).     * 
+     * 
      * 
      * @param x
      * @param z
@@ -191,7 +211,6 @@ public class Terrain {
        
         
         
-        int bla = 0;
         double[][] p = new double [4][3];
         p[0][0] = xInt;
         p[0][1] = zInt;
@@ -200,17 +219,14 @@ public class Terrain {
         p[1][0] = xInt2;
         p[1][1] = zInt;
         p[1][2] = getGridAltitude(xInt2, zInt);
-        bla = 1;
        // System.out.println("Interp2 : x:"+p[bla][0]+" y:"+p[bla][2]+" z:"+p[bla][1]);
         p[2][0] = xInt;
         p[2][1] = zInt2;
         p[2][2] = getGridAltitude(xInt, zInt2);
-        bla = 2;
         //System.out.println("Interp3 : x:"+p[bla][0]+" y:"+p[bla][2]+" z:"+p[bla][1]);
         p[3][0] = xInt2;
         p[3][1] = zInt2;
         p[3][2] = getGridAltitude(xInt2, zInt2);
-        bla = 3;
         //System.out.println("Interp4 : x:"+p[bla][0]+" y:"+p[bla][2]+" z:"+p[bla][1]);
         
         double frac1 = x - xInt;
@@ -229,8 +245,7 @@ public class Terrain {
         
         //More complicated case
         
-       // double distp0 = distSquare(x,z,p[0][0],p[0][1]);
-        //double distp3 = distSquare(x,z,p[3][0],p[3][1]);
+
         
         double[] u1, u2, u3, t;
         
@@ -264,30 +279,41 @@ public class Terrain {
         return altitude;
     }
     
-    
+    /**
+     *
+     * @param a
+     * @param b
+     * @param c
+     * @return The absolute value of area2(a,b,c) == 2*area of the triangle (a,b,c)
+     */
     private double unsarea2(double[] a, double[] b, double[] c)
     {
     	return Math.abs(area2(a,b,c));
     }
-    
+    /**
+     *
+     * @param a
+     * @param b
+     * @param c
+     * @return 2 times the signed  area of the triangle a,b,c
+     */
     private double area2(double[] a, double[] b, double[] c)
     {
     	return ((b[0] - a[0])*(c[1] - a[1]) - (b[1] - a[1])*(c[0] - a[0]));
     }
-    
-    //true if c is on the left of a->b
+    /**
+     * 
+     * @param a
+     * @param b
+     * @param c
+     * @return true iff c is on the strict left of the segment a->b
+     */
     private boolean left(double[] a, double[] b, double[] c)
     {
     	return area2(a,b,c) > 0;
     	
     }
-    
-    private double distSquare(double x1,double y1,double x2,double y2)
-    {
-    	double dx = (x2 - x1);
-    	double dy = (y2 - y1);
-    	return dx*dx + dy+dy;
-    }
+ 
     
 
     /**
@@ -303,6 +329,14 @@ public class Terrain {
         myTrees.add(tree);
     }
     
+    
+    /**
+     * Add a other object at the specified location, with the y coordinate
+     * being calculated by tthe altitude function
+     * 
+     * @param x
+     * @param z
+     */
     
     public void addOther(double x, double z)
     {
@@ -323,6 +357,12 @@ public class Terrain {
         myRoads.add(road);        
     }
     
+    /**
+     * @param a
+     * @param b
+     * @return Cross product axb, a and b 2-dimensional vectors
+     */
+    
 	private double[] crossProduct(double[] a, double[] b)
 	{
 		double[] result = new double[3];
@@ -331,6 +371,12 @@ public class Terrain {
 		result[2] = (b[1]*a[0] - a[1]*b[0]);
 		return result;
 	}
+	
+	/**
+	 * Load textures and shaders for the terrain and recursively makes this call for
+	 * all the objects of the terrain
+	 * @param gl
+	 */
 	
 	public void loadTextures(GL2 gl)
 	{
@@ -361,6 +407,11 @@ public class Terrain {
         for(Road r : this.myRoads) r.loadTextures(gl);
         for(Other o : this.myOthers) o.loadTextures(gl);
 	}
+	
+	/**
+	 * Draw the terrain and the objects on it
+	 * @param gl
+	 */
     
     public void draw(GL2 gl){
     	gl.glActiveTexture(GL2.GL_TEXTURE0); 	

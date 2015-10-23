@@ -233,6 +233,11 @@ public class Road {
          throw new IllegalArgumentException("" + i);
     }
     
+    /**
+     * Load the texture and shaders necessary for the road
+     * @param gl
+     */
+    
     public void loadTextures(GL2 gl)
     {
     	// Texture road
@@ -258,6 +263,16 @@ public class Road {
 		 shaderprogram = shaders[0];
     }
     
+    /**
+     * 
+     * Draw the road at height "h" and with size()/step segments.
+     * 
+     * So, the smaller the step, the more defined will be the road
+     * 
+     * @param gl
+     * @param h
+     * @param step
+     */
    
     public void draw(GL2 gl, double h, double step)
     {
@@ -270,7 +285,7 @@ public class Road {
         float matSpec[] = { 0.4f, 0.4f, 0.4f, 1.0f };
         float matShine[] = { 10.0f };
         float emm[] = {0.0f, 0.0f, 0.0f, 1.0f};
-        // Material properties of sphere.
+        // Material properties of road.
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDif,0);
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, matSpec,0);
         gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SHININESS, matShine,0);
@@ -301,9 +316,9 @@ public class Road {
     		
     		//Order matters! CCW order!
     		
-    		//TODO: Remove epsilon. For now it is just for it not to be so
-    		// near the ground 
     		
+    		//Little epsion in height so it isn't IN the ground, but ON
+    		// the ground
     		double eps = 0.001;
     		double w = this.width()/2;
 
