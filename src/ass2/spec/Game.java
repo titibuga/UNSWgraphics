@@ -486,11 +486,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 				break;
 			case KeyEvent.VK_LEFT:
 				if(firstPerson || e.isShiftDown()) 	rotationCam[1] = (rotationCam[1] + 5)%360;
-				else angleAvatar = (angleAvatar + 5) % 360;
+				angleAvatar = (angleAvatar + 5) % 360;
 				break;
 			case KeyEvent.VK_RIGHT:
 				if(firstPerson || e.isShiftDown()) rotationCam[1] = (rotationCam[1] - 5)%360;
-				else angleAvatar = (angleAvatar - 5) % 360;
+				angleAvatar = (angleAvatar - 5) % 360;
 				break;
 			 case KeyEvent.VK_J:
 				//angle = (angle - 5) % 360;
