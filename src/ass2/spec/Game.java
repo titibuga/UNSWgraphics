@@ -94,15 +94,18 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 	@Override
 	public void display(GLAutoDrawable drawable) {
 		//Basic stuff first
-		if (!night && rotateSun) updateSun();
 		GL2 gl = drawable.getGL().getGL2();
+		// Sky color
+		if (!night) gl.glClearColor(0.88f, 1f, 1f, 1.0f);
+		else gl.glClearColor(0f, 0f, 0f, 1);
+		if (!night && rotateSun) updateSun();
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT  );
 	    gl.glMatrixMode(GL2.GL_MODELVIEW);
 	    gl.glLoadIdentity();
 	    
 	    setUpCamera(gl);
+	    //Start drawing
 	    gl.glPushMatrix();
-		    //Start drawing
 			// Draw Light
 			if (!night) {
 				gl.glEnable(GL2.GL_LIGHT0);
@@ -139,11 +142,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 					double hav;
 					hav = myTerrain.altitude(posCamx, posCamz);
 					gl.glTranslated(posCamx, hav + 0.2, posCamz);
-					//gl.glRotated(rotationCam[1],0,1,0);
 					gl.glRotated(angleAvatar, 0, 1, 0);
 					gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, new float[]{0.0f,0.0f,0.0f,1.0f}, 0);
 					gl.glEnable(GL2.GL_LIGHT1);
-					// Parameters for Torch
+					// Parameters for Torch (spotlight)
 			    	float spotDirection[] = {0.1f, 0.1f, 1.0f}; // Spotlight direction.
 			    	float spotAngle = 45.0f; // Spotlight cone half-angle.
 		        	float spotExponent = 2.0f; // Spotlight exponent = attenuation factor.
@@ -382,8 +384,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
     	
     	
 		// light for the sun (day)
-        float lightAmb[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-        float lightDifAndSpec[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+        float lightAmb[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+        float lightDifAndSpec[] = { 0.6f, 0.6f, 0.6f, 1.0f };
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, lightAmb,0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightDifAndSpec,0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, lightDifAndSpec,0);
@@ -527,15 +529,6 @@ public class Game extends JFrame implements GLEventListener, KeyListener{
 		    case KeyEvent.VK_Z:
 				if (!rotateSun) rotateSun = true;
 				else (rotateSun) = false;
-		   		break;
-		    case KeyEvent.VK_X:
-				angleAvatar = (angleAvatar + 10) % 360;
-		   		break;
-		    case KeyEvent.VK_B:
-		    	angleCamera = (angleCamera + 10) % 360;
-		   		break;
-		    case KeyEvent.VK_N:
-		    	angleCamera = (angleCamera - 10) % 360;
 		   		break;
 			default:
 				break;
